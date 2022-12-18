@@ -1,0 +1,536 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: l3basic\n"
+"POT-Creation-Date: 2016-01-21 21:29+0900\n"
+"PO-Revision-Date: 2016-01-21 21:29+0900\n"
+"Last-Translator: Sasaji <s-sasaji@ddo.jp>\n"
+"Language-Team: \n"
+"Language: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
+"X-Poedit-Basepath: ../../\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: src\n"
+"X-Poedit-SearchPath-1: data\n"
+
+#: src/chartypebox.cpp:16
+msgid "Charactor Type"
+msgstr "文字種類"
+
+#: src/chartypebox.cpp:22
+msgid "Choose charactor type."
+msgstr "文字種類を選択してください。"
+
+#: src/configbox.cpp:12
+msgid "Configure"
+msgstr "設定"
+
+#: src/configbox.cpp:21
+msgid "Input File"
+msgstr "入力ファイル"
+
+#: src/configbox.cpp:24
+msgid "Text File"
+msgstr "テキストファイル"
+
+#: src/configbox.cpp:25
+msgid "Read Until End of File Mark"
+msgstr "ファイル終端コードまで読む"
+
+#: src/configbox.cpp:33
+msgid "Output File"
+msgstr "出力ファイル"
+
+#: src/configbox.cpp:36
+msgid "Intermediate Lang."
+msgstr "中間言語形式"
+
+#: src/configbox.cpp:37 src/configbox.cpp:51
+msgid "Add End of File"
+msgstr "ファイル終端コードを追加"
+
+#: src/configbox.cpp:40 src/main.cpp:674 src/main.cpp:716
+msgid "Ascii Text"
+msgstr "アスキー形式テキスト"
+
+#: src/configbox.cpp:42 src/configbox.cpp:56
+msgid "CR"
+msgstr "CR"
+
+#: src/configbox.cpp:43 src/configbox.cpp:57
+msgid "LF"
+msgstr "LF"
+
+#: src/configbox.cpp:44 src/configbox.cpp:58
+msgid "CR+LF"
+msgstr "CR+LF"
+
+#: src/configbox.cpp:54 src/main.cpp:675 src/main.cpp:727
+msgid "UTF-8 Text"
+msgstr "UTF-8形式テキスト"
+
+#: src/configbox.cpp:65
+msgid "Include BOM"
+msgstr "BOMを含める"
+
+#: src/configbox.cpp:68
+msgid "Start Address (L3 only)"
+msgstr "スタートアドレス(L3のみ)"
+
+#: src/errorinfo.cpp:26
+msgid "File not found."
+msgstr "ファイルがみつかりません。"
+
+#: src/errorinfo.cpp:30
+msgid "Cannot open file."
+msgstr "ファイルを開けません。"
+
+#: src/errorinfo.cpp:34
+msgid "Cannot write file."
+msgstr "ファイルを出力できません。"
+
+#: src/errorinfo.cpp:38
+msgid "File is empty."
+msgstr "ファイルが空です。"
+
+#: src/errorinfo.cpp:42
+msgid "Cannot specify the same file."
+msgstr "同じファイルを指定することはできません。"
+
+#: src/errorinfo.cpp:46
+msgid "File is probably encrypted."
+msgstr "ファイルはおそらく暗号化されています。"
+
+#: src/errorinfo.cpp:50
+msgid "File is probably no BASIC data."
+msgstr "ファイルはおそらくBASICではありません。"
+
+#: src/errorinfo.cpp:54
+msgid "Parse stopped. Too many invalid BASIC codes exist."
+msgstr "解析を中止します。解析できないBASICコードが多すぎます。"
+
+#: src/errorinfo.cpp:58
+msgid "Parse stopped. Too many invalid charactors exist."
+msgstr "解析を中止します。解析できない文字が多すぎます。"
+
+#: src/errorinfo.cpp:62
+msgid "Please put on the file as same place as this application."
+msgstr "ファイルをこのアプリケーションと同じ場所においてください。"
+
+#: src/errorinfo.cpp:66
+msgid "Continue this process."
+msgstr "処理を続行します。"
+
+#: src/errorinfo.cpp:69 src/parseresult.cpp:99
+msgid "Unknown error."
+msgstr "不明なエラー"
+
+#: src/errorinfo.cpp:105
+msgid "Error"
+msgstr "エラー"
+
+#: src/errorinfo.cpp:108
+msgid "Warning"
+msgstr "警告"
+
+#: src/fontminibox.cpp:15 src/main.cpp:755
+msgid "Font"
+msgstr "フォント"
+
+#: src/intnamebox.cpp:8
+msgid "Required information entry is empty."
+msgstr "名前は空にはできません。"
+
+#: src/intnamebox.cpp:8
+#, c-format
+msgid "'%s' is invalid"
+msgstr "'%s'に不正な文字が含まれています。"
+
+#: src/intnamebox.cpp:22
+msgid "Internal Name"
+msgstr "内部ファイル名"
+
+#: src/intnamebox.cpp:30
+msgid "Input internal name for tape image."
+msgstr "テープイメージの内部ファイル名を入力してください。"
+
+#: src/main.cpp:15
+#, c-format
+msgid "can't open file '%s'"
+msgstr "ファイル'%s'を開けません。"
+
+#: src/main.cpp:16
+#, c-format
+msgid "can't create file '%s'"
+msgstr "ファイル'%s'を出力できません。"
+
+#: src/main.cpp:17
+#, c-format
+msgid "can't close file descriptor %d"
+msgstr "ファイルデスクリプタ%dをクローズできません。"
+
+#: src/main.cpp:18
+#, c-format
+msgid "can't read from file descriptor %d"
+msgstr "ファイルデスクリプタ%dから読み込めません。"
+
+#: src/main.cpp:19
+#, c-format
+msgid "can't write to file descriptor %d"
+msgstr "ファイルデスクリプタ%dへ書き込めません。"
+
+#: src/main.cpp:20
+#, c-format
+msgid "can't flush file descriptor %d"
+msgstr "ファイルデスクリプタ%dをフラッシュできません。"
+
+#: src/main.cpp:21
+#, c-format
+msgid "can't seek on file descriptor %d"
+msgstr "ファイルデスクリプタ%dをシークできません。"
+
+#: src/main.cpp:22
+#, c-format
+msgid "can't get seek position on file descriptor %d"
+msgstr "ファイルデスクリプタ%dのシーク位置を取得できません。"
+
+#: src/main.cpp:189
+msgid "OK"
+msgstr "OK"
+
+#: src/main.cpp:189
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: src/main.cpp:190
+msgid "Hide l3s1basic"
+msgstr "l3s1basicを隠す"
+
+#: src/main.cpp:190
+msgid "Hide Others"
+msgstr "ほかを隠す"
+
+#: src/main.cpp:190
+msgid "Show All"
+msgstr "すべてを表示"
+
+#: src/main.cpp:190
+msgid "Quit l3s1basic"
+msgstr "l3s1basicを終了"
+
+#: src/main.cpp:190
+msgid "Services"
+msgstr "サービス"
+
+#: src/main.cpp:190
+msgid "Preferences…"
+msgstr "環境設定…"
+
+#: src/main.cpp:211
+msgid "&Open..."
+msgstr "開く(&O)..."
+
+#: src/main.cpp:212
+msgid "&Close"
+msgstr "閉じる(&C)"
+
+#: src/main.cpp:215
+msgid "&BASIC Intermediate Language..."
+msgstr "BASIC中間言語形式(&B)..."
+
+#: src/main.cpp:216
+msgid "&Ascii Text..."
+msgstr "アスキー形式テキスト(&A)..."
+
+#: src/main.cpp:217
+msgid "&UTF-8 Text..."
+msgstr "UTF-8形式テキスト(&U)..."
+
+#: src/main.cpp:219
+msgid "For Disk(&Binary)..."
+msgstr "ディスク用(バイナリ)(&B)..."
+
+#: src/main.cpp:220
+msgid "For Disk(&Ascii)..."
+msgstr "ディスク用(アスキー)(&A)..."
+
+#: src/main.cpp:222
+msgid "Tape Image(&Binary)..."
+msgstr "テープイメージ(バイナリ)(&B)..."
+
+#: src/main.cpp:223
+msgid "Tape Image(&Ascii)..."
+msgstr "テープイメージ(アスキー)(&A)..."
+
+#: src/main.cpp:224
+msgid "&Export To"
+msgstr "エクスポート(&E)"
+
+#: src/main.cpp:228
+msgid "&Reccent Files"
+msgstr "最近使用したファイル(&R)"
+
+#: src/main.cpp:230
+msgid "E&xit"
+msgstr "終了(&X)"
+
+#: src/main.cpp:232
+msgid "&Configure..."
+msgstr "設定(&C)..."
+
+#: src/main.cpp:234
+msgid "&About..."
+msgstr "バージョン情報(&A)..."
+
+#: src/main.cpp:238
+msgid "&File"
+msgstr "ファイル(&F)"
+
+#: src/main.cpp:239
+msgid "&Other"
+msgstr "その他(&O)"
+
+#: src/main.cpp:240
+msgid "&Help"
+msgstr "ヘルプ(&H)"
+
+#: src/main.cpp:335
+msgid "Open file"
+msgstr "ファイルを開く"
+
+#: src/main.cpp:338
+msgid ""
+"Supported files (*.bin;*.bas;*.txt;*.dat;*.l3)|*.bin;*.bas;*.txt;*.dat;*.l3|"
+"All files (*.*)|*.*"
+msgstr ""
+"対応ファイル(*.bin;*.bas;*.txt;*.dat;*.l3)|*.bin;*.bas;*.txt;*.dat;*.l3|すべ"
+"てのファイル(*.*)|*.*"
+
+#: src/main.cpp:421 src/main.cpp:565
+msgid "Now Processing..."
+msgstr "処理中..."
+
+#: src/main.cpp:490
+msgid "BASIC File (*.bin)|*.bin|All Files (*.*)|*.*"
+msgstr "BASICファイル(*.bin)|*.bin|すべてのファイル(*.*)|*.*"
+
+#: src/main.cpp:495 src/main.cpp:516
+msgid "Tape Image File (*.l3)|*.l3|All Files (*.*)|*.*"
+msgstr "テープファイル(*.l3)|*.l3|すべてのファイル(*.*)|*.*"
+
+#: src/main.cpp:506
+msgid "BASIC File (*.bas)|*.bas|All Files (*.*)|*.*"
+msgstr "BASICファイル(*.bas)|*.bas|すべてのファイル(*.*)|*.*"
+
+#: src/main.cpp:511 src/main.cpp:527
+msgid "ASCII File (*.bas)|*.bas|All Files (*.*)|*.*"
+msgstr "ASCIIファイル(*.bas)|*.bas|すべてのファイル(*.*)|*.*"
+
+#: src/main.cpp:532
+msgid "TEXT File (*.txt)|*.txt|All Files (*.*)|*.*"
+msgstr "テキストファイル(*.txt)|*.txt|すべてのファイル(*.*)|*.*"
+
+#: src/main.cpp:541
+msgid "All Files (*.*)|*.*"
+msgstr "すべてのファイル(*.*)|*.*"
+
+#: src/main.cpp:548
+msgid "Export File"
+msgstr "ファイルをエクスポート"
+
+#: src/main.cpp:658
+msgid "Input File Information"
+msgstr "入力ファイル情報"
+
+#: src/main.cpp:664 src/main.cpp:700
+msgid "BASIC Intermediate Language"
+msgstr "BASIC中間言語"
+
+#: src/main.cpp:669 src/main.cpp:710
+msgid "BASIC Type"
+msgstr "BASIC種類"
+
+#: src/main.cpp:681 src/main.cpp:732
+msgid "Text Type"
+msgstr "テキスト種類"
+
+#: src/main.cpp:697
+msgid "Output File Information"
+msgstr "出力ファイル情報"
+
+#: src/main.cpp:701
+msgid "For Disk (Binary)"
+msgstr "ディスク用(バイナリ)"
+
+#: src/main.cpp:702
+msgid "Tape Image (Binary)"
+msgstr "テープイメージ(バイナリ)"
+
+#: src/main.cpp:717
+msgid "For Disk (Ascii)"
+msgstr "ディスク用(アスキー)"
+
+#: src/main.cpp:718
+msgid "Tape Image (Ascii)"
+msgstr "テープイメージ(アスキー)"
+
+#: src/main.cpp:740
+msgid "Export"
+msgstr "エクスポート"
+
+#: src/main.cpp:751
+msgid "Display Type"
+msgstr "表示形式"
+
+#: src/main.cpp:759
+msgid "Change"
+msgstr "変更"
+
+#: src/main.cpp:1156
+msgid "About..."
+msgstr "About..."
+
+#: src/parse.cpp:480
+msgid "No input file exist."
+msgstr "入力ファイルがありません。"
+
+#: src/parse.cpp:581
+msgid "Complete."
+msgstr "完了"
+
+#: src/parse.cpp:594
+msgid "Binary->Ascii"
+msgstr "中間言語→アスキー"
+
+#: src/parse.cpp:995
+msgid "Ascii->Binary"
+msgstr "アスキー→中間言語"
+
+#: src/parse.cpp:1335 src/parse.cpp:1374
+msgid "Ascii->UTF8"
+msgstr "アスキー->UTF8"
+
+#: src/parse.cpp:1423 src/parse.cpp:1463
+msgid "UTF8->Ascii"
+msgstr "UTF8→アスキー"
+
+#: src/parse.cpp:1737
+msgid "----- Result Report -----"
+msgstr "----- 結果表示 -----"
+
+#: src/parse.cpp:1741
+msgid "-------------------------"
+msgstr "-------------------------"
+
+#: src/parseresult.cpp:52
+msgid "Invalid character exists."
+msgstr "変換できない文字があります。"
+
+#: src/parseresult.cpp:56
+msgid "Invalid UTF-8 code exists."
+msgstr "変換できないUTF-8文字があります。"
+
+#: src/parseresult.cpp:60
+msgid "Invalid character which cannot convert to UTF-8 exists."
+msgstr "UTF-8へ変換できない文字があります。"
+
+#: src/parseresult.cpp:64
+msgid "Invalid BASIC code exists."
+msgstr "変換できないBASICコードがあります。"
+
+#: src/parseresult.cpp:68
+msgid "Aborted converting because too many invalid UTF-8 code exist."
+msgstr "変換できないUTF-8文字が多くあるため、変換を中止しました。"
+
+#: src/parseresult.cpp:72
+msgid "Aborted converting because too many chars cannot convert to UTF-8."
+msgstr "UTF-8へ変換できない文字が多くあるため、変換を中止しました。"
+
+#: src/parseresult.cpp:76
+msgid "Aborted converting because too many invalid BASIC code exists."
+msgstr "変換できないBASICコードが多くあるため、変換を中止しました。"
+
+#: src/parseresult.cpp:80
+msgid "Overflow."
+msgstr "オーバーフローです。"
+
+#: src/parseresult.cpp:84
+msgid "Invalid number is specified."
+msgstr "不正な数値が指定されています。"
+
+#: src/parseresult.cpp:88
+msgid "Invalid line number is specified."
+msgstr "不正な行番号が指定されています。"
+
+#: src/parseresult.cpp:92
+msgid "Line number is smaller than above it."
+msgstr "行番号が前行より小さくなっています。"
+
+#: src/parseresult.cpp:96
+msgid "Character code &HFE is erased."
+msgstr "キャラクタコード&HFEは削除されます。"
+
+#: src/parseresult.cpp:114
+msgid "Linenumber:"
+msgstr "行番号:"
+
+#: src/parseresult.cpp:117
+msgid "Row:"
+msgstr "行:"
+
+#: src/parseresult.cpp:120
+msgid "Col:"
+msgstr "位置:"
+
+#: src/parsetape.cpp:35
+msgid "Tape->RealData"
+msgstr "テープ->実データ"
+
+#: data/basic_code.dat:19
+msgid "L3 ROM BASIC"
+msgstr ""
+
+#: data/basic_code.dat:115
+msgid "L3 DISK BASIC(3inch)"
+msgstr ""
+
+#: data/basic_code.dat:127
+msgid "L3 DISK BASIC(5inch)"
+msgstr ""
+
+#: data/basic_code.dat:213
+msgid "S1 ROM BASIC"
+msgstr ""
+
+#: data/basic_code.dat:332
+msgid "S1 DISK BASIC"
+msgstr ""
+
+#: data/basic_code.dat:343
+msgid "S1 KANJI DISK BASIC"
+msgstr ""
+
+#: data/char_code.dat:11
+msgid "Interlace"
+msgstr "インターレース"
+
+#: data/char_code.dat:357
+msgid "NonInterlace"
+msgstr "ノンインターレース"
+
+#: data/char_code.dat:759
+msgid "Interlace(Wide)"
+msgstr "インターレース(全角)"
+
+#: data/char_code.dat:1102
+msgid "Kanji(Shift JIS)"
+msgstr "漢字(シフトJIS)"
+
+#~ msgid "Disk Image (&Binary)..."
+#~ msgstr "ディスクイメージ(バイナリ)(&B)..."
+
+#~ msgid "Disk Image (&Ascii)..."
+#~ msgstr "ディスクイメージ(アスキー)(&A)..."
