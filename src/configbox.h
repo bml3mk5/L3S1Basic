@@ -1,16 +1,16 @@
 ﻿/// @file configbox.h
 ///
-/// @brief 設定ダイアログ
+/// @brief 入出力設定ダイアログ
 ///
-#ifndef _CONFIGBOX_H_
-#define _CONFIGBOX_H_
+#ifndef CONFIGBOX_H
+#define CONFIGBOX_H
 
 #include "common.h"
 #include <wx/wx.h>
 #include <wx/dialog.h>
 #include "parseparam.h"
 
-/// 設定ダイアログ
+/// 入出力設定ダイアログ
 class ConfigBox : public wxDialog, public ParseParam
 {
 private:
@@ -49,8 +49,10 @@ public:
 	//@}
 
 	/// event procedures
+	//@{
+	//@}
 
 	DECLARE_EVENT_TABLE()
 };
 
-#endif /* _CONFIGBOX_H_ */
+#endif /* CONFIGBOX_H */

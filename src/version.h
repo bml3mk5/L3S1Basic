@@ -1,20 +1,26 @@
 ﻿/// @file version.h
 ///
+/// @author Copyright (c) 2015-2022 Sasaji. All rights reserved.
 ///
+
 #ifndef _VERSION_H_
 #define _VERSION_H_
 
-#define APPLICATION_VERSION	"0.6.7"
+#define APPLICATION_FULLNAME	"LEVEL3/S1 BASIC File Converter"
+#define APPLICATION_NAME		"l3s1basic"
+#define APPLICATION_XPMICON_NAME l3s1basic_xpm
+
+#define APPLICATION_VERSION	"0.7.0"
 #define APP_VER_MAJOR	0
-#define APP_VER_MINOR	6
-#define APP_VER_REV	7
+#define APP_VER_MINOR	7
+#define APP_VER_REV	0
 #define APP_VER_BUILD	0
-#define APP_COPYRIGHT	"Copyright (C) 2013-2018 Sasaji"
+#define APP_COPYRIGHT	"Copyright (C) 2015-2022 Sasaji"
 
 #if defined(__MINGW32__)
-#ifdef x86_64
+#if defined(x86_64) || defined(__x86_64)
 #define PLATFORM "Windows(MinGW) 64bit"
-#elif i386
+#elif defined(i386) || defined(__i386)
 #define PLATFORM "Windows(MinGW) 32bit"
 #else
 #define PLATFORM "Windows(MinGW)"

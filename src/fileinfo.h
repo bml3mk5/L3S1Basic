@@ -101,12 +101,14 @@ protected:
 
 public:
 	PsFileInput();
+	PsFileInput(const PsFileType &type);
 	PsFileInput(const PsFileInput &src);
 	PsFileInput(const PsFileOutput &src);
 	PsFileInput &operator=(const PsFileInput &src);
 	virtual ~PsFileInput() {}
 
 	virtual size_t Read(const wxUint8 *buffer, size_t size) = 0;
+	virtual wxInputStream &Read(void *buffer, size_t size);
 	virtual PsFileInput &Read(PsFileOutput &src) = 0;
 	virtual bool IsOpened() const = 0;
 	virtual wxFileOffset Seek(wxFileOffset pos, wxSeekMode mode=wxFromStart) = 0;
@@ -126,6 +128,7 @@ public:
 	virtual ~PsFileOutput() {}
 
 	virtual size_t Write(const wxUint8 *buffer, size_t size) = 0;
+	virtual wxOutputStream &Write(const void *buffer, size_t size);
 	virtual size_t Write(const wxString &str) = 0;
 	virtual size_t WriteUTF8(const wxString &str) = 0;
 	virtual PsFileOutput &Write(PsFileInput &src) = 0;
@@ -152,6 +155,7 @@ public:
 
 	wxFileOffset GetLength() const;
 	size_t Read(const wxUint8 *buffer, size_t size);
+	wxInputStream &Read(void *buffer, size_t size);
 	PsFileStrInput &Read(PsFileOutput &src);
 	wxFileOffset Seek(wxFileOffset pos, wxSeekMode mode=wxFromStart);
 	void SeekStartPos();
@@ -173,6 +177,7 @@ public:
 	bool IsOpened() const;
 
 	size_t Write(const wxUint8 *buffer, size_t size);
+	wxOutputStream &Write(const void *buffer, size_t size);
 	size_t Write(const wxString &str);
 	size_t WriteUTF8(const wxString &str);
 	PsFileStrOutput &Write(PsFileInput &src);
@@ -190,6 +195,7 @@ public:
 	bool IsOpened() const;
 
 	size_t Read(const wxUint8 *buffer, size_t size);
+	wxInputStream &Read(void *buffer, size_t size);
 	PsFileFsInput &Read(PsFileOutput &src);
 	wxFileOffset Seek(wxFileOffset pos, wxSeekMode mode=wxFromStart);
 	void SeekStartPos();
@@ -216,6 +222,7 @@ public:
 	bool IsOpened() const;
 
 	size_t Write(const wxUint8 *buffer, size_t size);
+	wxOutputStream &Write(const void *buffer, size_t size);
 	size_t Write(const wxString &str);
 	size_t WriteUTF8(const wxString &str);
 	PsFileFsOutput &Write(PsFileInput &src);

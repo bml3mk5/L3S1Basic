@@ -13,11 +13,11 @@ FILEFLAGS       0x00000000
         {
             VALUE "FileVersion", APPLICATION_VERSION
             VALUE "ProductVersion", APPLICATION_VERSION ""PLATFORM""
-            VALUE "FileDescription", "Level3/S1 BASIC File Converter"
+            VALUE "FileDescription", APPLICATION_FULLNAME
             VALUE "LegalCopyright", APP_COPYRIGHT
             VALUE "OriginalFilename", "l3s1basic.exe"
             VALUE "ProductName", "L3S1basic"
-            VALUE "InternalName", "l3s1basic"
+            VALUE "InternalName", APPLICATION_NAME
         }
     }
     BLOCK "VarFileInfo"
@@ -26,5 +26,5 @@ FILEFLAGS       0x00000000
     }
 }
 
-l3basic ICON "res\l3s1basic.ico"
+l3s1basic ICON "res\l3s1basic.ico"
 #include "wx/msw/wx.rc"

@@ -2,15 +2,15 @@
 ///
 /// @brief 本体
 ///
-#ifndef _L3S1BASIC_H_
-#define _L3S1BASIC_H_
+#ifndef L3S1BASIC_H
+#define L3S1BASIC_H
 
 #include "common.h"
 #include <wx/wx.h>
 #include <wx/dynarray.h>
 #include <wx/dnd.h>
 #include <wx/fontdlg.h>
-#include "config.h"
+#include "mytextctrl.h"
 #include "parse.h"
 
 class L3basicApp;
@@ -19,9 +19,10 @@ class L3basicPanel;
 class L3basicFileDialog;
 class L3basicFileDropTarget;
 
-class CharTypeBox;
+class MyMenu;
 
-class ConfigBox;
+//class CharTypeBox;
+//class ConfigBox;
 
 /// メインWindow
 class L3basicApp: public wxApp
@@ -31,7 +32,6 @@ private:
 	wxString ini_path;
 	wxString res_path;
 	wxLocale mLocale;
-	Config   mConfig;
 	L3basicFrame *frame;
 	wxString in_file;
 
@@ -42,12 +42,13 @@ public:
 	void OnInitCmdLine(wxCmdLineParser &parser);
 	bool OnCmdLineParsed(wxCmdLineParser &parser);
 	void MacOpenFile(const wxString &fileName);
+	void MacOpenFiles(const wxArrayString &fileNames);
 	int  OnExit();
 	const wxString &GetAppPath();
 	const wxString &GetIniPath();
 	const wxString &GetResPath();
 
-	Config *GetConfig();
+	L3basicFrame *GetFrame();
 };
 
 DECLARE_APP(L3basicApp)
@@ -57,15 +58,15 @@ class L3basicFrame: public wxFrame
 {
 private:
 	// gui
-	wxMenu *menuFile;
-	wxMenu *menuOther;
-	wxMenu *menuHelp;
-	wxMenu *menuRecentFiles;
+	MyMenu *menuFile;
+	MyMenu *menuOther;
+	MyMenu *menuHelp;
+	MyMenu *menuRecentFiles;
 	L3basicPanel *panel;
 
 	Parse *ps;
 
-	ConfigBox *cfgbox;
+//	ConfigBox *cfgbox;
 //	CharTypeBox *ctypebox;
 
 	wxString file_path;
@@ -90,6 +91,7 @@ public:
 	void OnOpenRecentFile(wxCommandEvent& event);
 
 	void OnConfigure(wxCommandEvent& event);
+	void OnDispSettings(wxCommandEvent& event);
 
 	void OnMenuOpen(wxMenuEvent& event);
 	//@}
@@ -104,7 +106,9 @@ public:
 	void OpenDroppedFile(const wxString &path);
 	void ReloadBinaryData(int type, int mask, const wxString &basic_type);
 	void ReloadOpendData(int type, int mask, const wxString &char_type);
-	void ReloadParsedData(int type, int mask, const wxString &char_type);
+//	void ReloadParsedAsciiData(int type, int mask, const wxString &char_type, const wxString &basic_type);
+	void ReloadParsedData(int type, int mask, const wxString &char_type, const wxString &basic_type = wxEmptyString);
+	void ReloadData();
 	//@}
 
 	/// @name properties
@@ -127,6 +131,7 @@ public:
 		IDM_EXPORT_ASCIITXTDISK,
 		IDM_EXPORT_UTF8TEXT,
 		IDM_CONFIGURE,
+		IDM_DISP_SETTINGS,
 
 		IDD_CONFIGBOX,
 		IDD_CHARTYPEBOX,
@@ -147,7 +152,7 @@ private:
 	wxBoxSizer *szrAll;
 
 //	wxTextCtrl *textName;
-	wxTextCtrl *textInfo;
+	MyTextCtrl *textInfo;
 
 	wxRadioButton *radBinaryI;
 	wxRadioButton *radAsciiI;
@@ -169,6 +174,7 @@ private:
 
 	wxButton *btnExport;
 
+	wxComboBox *comDBasicType;
 	wxComboBox *comDCharType;
 
 	wxTextCtrl *textFont;
@@ -194,13 +200,14 @@ public:
 	void OnSelectAsciiI(wxCommandEvent& event);
 	void OnSelectUTF8I(wxCommandEvent& event);
 	void OnSelectCharTypeI(wxCommandEvent& event);
+	void OnSelectDBasicType(wxCommandEvent& event);
 	void OnSelectDCharType(wxCommandEvent& event);
 	void OnClickFont(wxCommandEvent& event);
 	void OnClickExport(wxCommandEvent& event);
 	//@}
 	/// @name functions
 	//@{
-	void Update(PsFileType *file_type);
+	void UpdateControls(PsFileType *file_type);
 	void AddBasicType(const wxArrayString &items);
 	int  GetBasicTypeNum(int n);
 	wxString GetBasicType(int n);
@@ -220,7 +227,7 @@ public:
 	/// @name properties
 	//@{
 //	wxTextCtrl *GetTextName() { return textName; }
-	wxTextCtrl *GetTextInfo() { return textInfo; }
+	MyTextCtrl *GetTextInfo() { return textInfo; }
 
 	void SetFontName(const wxString &val) { mFontName = val; }
 	void SetFontSize(int val) { mFontSize = val; }
@@ -250,6 +257,7 @@ public:
 
 		IDC_BUTTON_EXPORT,
 
+		IDC_COMBO_DBASICTYPE,
 		IDC_COMBO_DCHARTYPE,
 
 		IDC_TEXT_FONT,
@@ -283,5 +291,5 @@ public:
 	L3basicAbout(wxWindow* parent, wxWindowID id);
 };
 
-#endif /* _L3S1BASIC_H_ */
+#endif /* L3S1BASIC_H */
 

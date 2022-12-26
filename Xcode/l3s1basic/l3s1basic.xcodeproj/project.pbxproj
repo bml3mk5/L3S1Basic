@@ -27,12 +27,16 @@
 		D93F98391BF384080009B204 /* intnamebox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D93F98381BF384080009B204 /* intnamebox.cpp */; };
 		D93F983B1BF384650009B204 /* config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D93F983A1BF384650009B204 /* config.cpp */; };
 		D93F983F1BF386880009B204 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D93F983D1BF386880009B204 /* main.cpp */; };
+		D96CD290295313360016EFE1 /* mymenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D96CD28F295313350016EFE1 /* mymenu.cpp */; };
+		D9AFB651294DEBD30071B50C /* dispsetbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9AFB64E294DEBD20071B50C /* dispsetbox.cpp */; };
+		D9AFB652294DEBD30071B50C /* colortag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9AFB650294DEBD30071B50C /* colortag.cpp */; };
 		D9C49EBF1BF1C01400831032 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C49EBE1BF1C01400831032 /* IOKit.framework */; };
 		D9C49EC11BF1C02200831032 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C49EC01BF1C02200831032 /* Carbon.framework */; };
 		D9C49EC31BF1C02D00831032 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C49EC21BF1C02D00831032 /* Cocoa.framework */; };
 		D9C49EC51BF1C03700831032 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C49EC41BF1C03700831032 /* AudioToolbox.framework */; };
 		D9C49EC71BF1C05900831032 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C49EC61BF1C05900831032 /* OpenGL.framework */; };
 		D9C49EF21BF1CA4100831032 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9C49EF11BF1CA4100831032 /* WebKit.framework */; };
+		D9E728EC2058287E00C0E728 /* mytextctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9E728E92058287E00C0E728 /* mytextctrl.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -99,6 +103,12 @@
 		D93F983A1BF384650009B204 /* config.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = config.cpp; sourceTree = "<group>"; };
 		D93F983D1BF386880009B204 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		D93F983E1BF386880009B204 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
+		D96CD28E295313350016EFE1 /* mymenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mymenu.h; sourceTree = "<group>"; };
+		D96CD28F295313350016EFE1 /* mymenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mymenu.cpp; sourceTree = "<group>"; };
+		D9AFB64D294DEBD20071B50C /* dispsetbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dispsetbox.h; sourceTree = "<group>"; };
+		D9AFB64E294DEBD20071B50C /* dispsetbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dispsetbox.cpp; sourceTree = "<group>"; };
+		D9AFB64F294DEBD30071B50C /* colortag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = colortag.h; sourceTree = "<group>"; };
+		D9AFB650294DEBD30071B50C /* colortag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = colortag.cpp; sourceTree = "<group>"; };
 		D9C49E571BF1BCA200831032 /* l3s1basic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = l3s1basic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9C49E7A1BF1BD8700831032 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../src/res/Info.plist; sourceTree = "<group>"; };
 		D9C49EBE1BF1C01400831032 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
@@ -107,6 +117,9 @@
 		D9C49EC41BF1C03700831032 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		D9C49EC61BF1C05900831032 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		D9C49EF11BF1CA4100831032 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		D9E728E92058287E00C0E728 /* mytextctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mytextctrl.cpp; sourceTree = "<group>"; };
+		D9E728EA2058287E00C0E728 /* mytextctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mytextctrl.h; sourceTree = "<group>"; };
+		D9E728EB2058287E00C0E728 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +164,8 @@
 				D93F97E91BF382AF0009B204 /* bsstream.h */,
 				D93F97EA1BF382AF0009B204 /* chartypebox.cpp */,
 				D93F97EB1BF382AF0009B204 /* chartypebox.h */,
+				D9AFB650294DEBD30071B50C /* colortag.cpp */,
+				D9AFB64F294DEBD30071B50C /* colortag.h */,
 				D93F97EC1BF382AF0009B204 /* common.h */,
 				D93F983A1BF384650009B204 /* config.cpp */,
 				D93F97EE1BF382AF0009B204 /* config.h */,
@@ -158,6 +173,8 @@
 				D93F97F01BF382AF0009B204 /* configbox.h */,
 				D93F97F11BF382AF0009B204 /* decistr.cpp */,
 				D93F97F21BF382AF0009B204 /* decistr.h */,
+				D9AFB64E294DEBD20071B50C /* dispsetbox.cpp */,
+				D9AFB64D294DEBD20071B50C /* dispsetbox.h */,
 				D93F97F31BF382AF0009B204 /* errorinfo.cpp */,
 				D93F97F41BF382AF0009B204 /* errorinfo.h */,
 				D93F97F51BF382AF0009B204 /* fileinfo.cpp */,
@@ -173,6 +190,10 @@
 				D93F983E1BF386880009B204 /* main.h */,
 				D93F98011BF382AF0009B204 /* maptable.cpp */,
 				D93F98021BF382AF0009B204 /* maptable.h */,
+				D96CD28F295313350016EFE1 /* mymenu.cpp */,
+				D96CD28E295313350016EFE1 /* mymenu.h */,
+				D9E728E92058287E00C0E728 /* mytextctrl.cpp */,
+				D9E728EA2058287E00C0E728 /* mytextctrl.h */,
 				D93F98031BF382AF0009B204 /* parse.cpp */,
 				D93F98041BF382AF0009B204 /* parse.h */,
 				D93F98051BF382AF0009B204 /* parseparam.h */,
@@ -181,6 +202,7 @@
 				D93F98081BF382AF0009B204 /* parsetape.cpp */,
 				D93F98091BF382AF0009B204 /* uint192.cpp */,
 				D93F980A1BF382AF0009B204 /* uint192.h */,
+				D9E728EB2058287E00C0E728 /* version.h */,
 			);
 			name = Sources;
 			path = ../../src;
@@ -309,6 +331,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D93F980C1BF382AF0009B204 /* bsstream.cpp in Sources */,
+				D9AFB652294DEBD30071B50C /* colortag.cpp in Sources */,
 				D93F980E1BF382AF0009B204 /* chartypebox.cpp in Sources */,
 				D93F983B1BF384650009B204 /* config.cpp in Sources */,
 				D93F98121BF382AF0009B204 /* configbox.cpp in Sources */,
@@ -316,6 +339,7 @@
 				D93F983F1BF386880009B204 /* main.cpp in Sources */,
 				D93F98161BF382AF0009B204 /* errorinfo.cpp in Sources */,
 				D93F98181BF382AF0009B204 /* fileinfo.cpp in Sources */,
+				D9AFB651294DEBD30071B50C /* dispsetbox.cpp in Sources */,
 				D93F981A1BF382AF0009B204 /* fontminibox.cpp in Sources */,
 				D93F98391BF384080009B204 /* intnamebox.cpp in Sources */,
 				D93F98201BF382AF0009B204 /* l3float.cpp in Sources */,
@@ -323,6 +347,8 @@
 				D93F98251BF382AF0009B204 /* parse.cpp in Sources */,
 				D93F98281BF382AF0009B204 /* parseresult.cpp in Sources */,
 				D93F982A1BF382AF0009B204 /* parsetape.cpp in Sources */,
+				D9E728EC2058287E00C0E728 /* mytextctrl.cpp in Sources */,
+				D96CD290295313360016EFE1 /* mymenu.cpp in Sources */,
 				D93F982B1BF382AF0009B204 /* uint192.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -382,13 +408,13 @@
 				);
 				SDKROOT = macosx;
 				WX_H = wx_osx_cocoau_;
-				WX_WIDGET_BASE = "../../../../../../Devel/wxWidgets-3.0.2/";
+				WX_WIDGET_BASE = "../../../../../../Devel/wxWidgets-3.1.3/";
 				WX_WIDGET_CFLAGS = "-D_FILE_OFFSET_BITS=64 -DwxDEBUG_LEVEL=0 -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__";
 				WX_WIDGET_DIR = "$(WX_WIDGET_BASE)build_debug_static_unicode/";
-				WX_WIDGET_INCLUDE = "$(WX_WIDGET_DIR)lib/wx/include/osx_cocoa-unicode-static-3.0 $(WX_WIDGET_BASE)include";
+				WX_WIDGET_INCLUDE = "$(WX_WIDGET_DIR)lib/wx/include/osx_cocoa-unicode-static-3.1 $(WX_WIDGET_BASE)include";
 				WX_WIDGET_LDFLAGS = "-lz -lpthread -liconv -lexpat";
 				WX_WIDGET_LIB = "$(WX_WIDGET_DIR)lib/";
-				WX_WIDGET_LIBS = "-lwxscintilla-3.0 -lwxregexu-3.0 -lwxtiff-3.0 -lwxjpeg-3.0 -lwxpng-3.0 -lwx_baseu-3.0 -lwx_baseu_xml-3.0 -lwx_baseu_net-3.0 -l$(WX_H)adv-3.0 -l$(WX_H)aui-3.0 -l$(WX_H)core-3.0 -l$(WX_H)gl-3.0 -l$(WX_H)html-3.0 -l$(WX_H)media-3.0 -l$(WX_H)propgrid-3.0 -l$(WX_H)qa-3.0 -l$(WX_H)ribbon-3.0 -l$(WX_H)richtext-3.0 -l$(WX_H)stc-3.0 -l$(WX_H)xrc-3.0";
+				WX_WIDGET_LIBS = "-lwxscintilla-3.1 -lwxregexu-3.1 -lwxtiff-3.1 -lwxjpeg-3.1 -lwxpng-3.1 -lwx_baseu-3.1 -lwx_baseu_xml-3.1 -lwx_baseu_net-3.1 -l$(WX_H)adv-3.1 -l$(WX_H)aui-3.1 -l$(WX_H)core-3.1 -l$(WX_H)gl-3.1 -l$(WX_H)html-3.1 -l$(WX_H)media-3.1 -l$(WX_H)propgrid-3.1 -l$(WX_H)qa-3.1 -l$(WX_H)ribbon-3.1 -l$(WX_H)richtext-3.1 -l$(WX_H)stc-3.1 -l$(WX_H)xrc-3.1";
 			};
 			name = Debug;
 		};
@@ -437,13 +463,13 @@
 				);
 				SDKROOT = macosx;
 				WX_H = wx_osx_cocoau_;
-				WX_WIDGET_BASE = "../../../../../../Devel/wxWidgets-3.0.2/";
+				WX_WIDGET_BASE = "../../../../../../Devel/wxWidgets-3.1.3/";
 				WX_WIDGET_CFLAGS = "-D_FILE_OFFSET_BITS=64 -DwxDEBUG_LEVEL=0 -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__";
 				WX_WIDGET_DIR = "$(WX_WIDGET_BASE)build_debug_static_unicode/";
-				WX_WIDGET_INCLUDE = "$(WX_WIDGET_DIR)lib/wx/include/osx_cocoa-unicode-static-3.0 $(WX_WIDGET_BASE)include";
+				WX_WIDGET_INCLUDE = "$(WX_WIDGET_DIR)lib/wx/include/osx_cocoa-unicode-static-3.1 $(WX_WIDGET_BASE)include";
 				WX_WIDGET_LDFLAGS = "-lz -lpthread -liconv -lexpat";
 				WX_WIDGET_LIB = "$(WX_WIDGET_DIR)lib/";
-				WX_WIDGET_LIBS = "-lwxscintilla-3.0 -lwxregexu-3.0 -lwxtiff-3.0 -lwxjpeg-3.0 -lwxpng-3.0 -lwx_baseu-3.0 -lwx_baseu_xml-3.0 -lwx_baseu_net-3.0 -l$(WX_H)adv-3.0 -l$(WX_H)aui-3.0 -l$(WX_H)core-3.0 -l$(WX_H)gl-3.0 -l$(WX_H)html-3.0 -l$(WX_H)media-3.0 -l$(WX_H)propgrid-3.0 -l$(WX_H)qa-3.0 -l$(WX_H)ribbon-3.0 -l$(WX_H)richtext-3.0 -l$(WX_H)stc-3.0 -l$(WX_H)xrc-3.0";
+				WX_WIDGET_LIBS = "-lwxscintilla-3.1 -lwxregexu-3.1 -lwxtiff-3.1 -lwxjpeg-3.1 -lwxpng-3.1 -lwx_baseu-3.1 -lwx_baseu_xml-3.1 -lwx_baseu_net-3.1 -l$(WX_H)adv-3.1 -l$(WX_H)aui-3.1 -l$(WX_H)core-3.1 -l$(WX_H)gl-3.1 -l$(WX_H)html-3.1 -l$(WX_H)media-3.1 -l$(WX_H)propgrid-3.1 -l$(WX_H)qa-3.1 -l$(WX_H)ribbon-3.1 -l$(WX_H)richtext-3.1 -l$(WX_H)stc-3.1 -l$(WX_H)xrc-3.1";
 			};
 			name = Release;
 		};

@@ -8,6 +8,8 @@
 #include <wx/filename.h>
 #include <wx/wfstream.h>
 #include <wx/arrimpl.cpp>
+#include "main.h"
+#include "config.h"
 #include "l3float.h"
 #include "l3specs.h"
 
@@ -33,6 +35,20 @@ static int iStartAddr[4] = {
 	0x4768 	// newon 7 0x4400 + 0x368
 };
 
+#define ESC_CODE "\x1b"
+#define ESC_CODEN 0x1b
+
+//////////////////////////////////////////////////////////////////////
+
+ParseAttr::ParseAttr()
+{
+	mAddSpaceAfterColon = false;
+}
+ParseAttr::~ParseAttr()
+{
+}
+
+//////////////////////////////////////////////////////////////////////
 ///
 /// パーサークラス
 ///
@@ -73,11 +89,13 @@ bool Parse::Init()
 	reHexa.Compile(_T("^[0-9a-fA-F]+"));
 	reSpace.Compile(_T("^  +"));
 
+	reVariEnd.Compile(_T("[%$#!]"));
+
 	return true;
 }
 
 /// 指定したファイルを開く
-bool Parse::OpenDataFile(const wxString &in_file_name)
+bool Parse::OpenDataFile(const wxString &in_file_name, PsFileType &file_type)
 {
 	PsFileInputInfo in_file;
 	if (!in_file.Open(in_file_name, wxFile::read)) {
@@ -85,6 +103,7 @@ bool Parse::OpenDataFile(const wxString &in_file_name)
 		mErrInfo.ShowMsgBox();
 		return false;
 	}
+	in_file.SetType(file_type);
 	if (!CheckDataFormat(in_file)) {
 		return false;
 	}
@@ -139,6 +158,7 @@ bool Parse::CheckDataFormat(PsFileInputInfo &in_file_info)
 	}
 
 	PsFileStrInput in_data(out_data);
+	in_data.SetType(in_file_info.GetType());
 	out_data.Clear();
 
 	// バッファにいれたデータの先頭を見る
@@ -189,7 +209,10 @@ bool Parse::CheckBinaryDataFormat(PsFileInput &in_data)
 	PsFileData    out_data;
 	ParseResult   result;
 	wxArrayString basic_types;
+	ParseAttr     pattr;
 	bool st = true;
+
+	pattr.DoesAddSpaceAfterColon(gConfig.DoesAddSpaceAfterColon());
 
 	in_data.SetTypeFlag(psAscii, false);
 
@@ -202,7 +225,7 @@ bool Parse::CheckBinaryDataFormat(PsFileInput &in_data)
 		out_data.SetBasicType(basic_types[i]);
 		out_data.Empty();
 		result.Empty();
-		st = ReadBinaryToAscii(in_data, out_data, &result);
+		st = ReadBinaryToAsciiColored(in_data, out_data, pattr, &result);
 		if (result.GetCount() > 0) {
 			// 変換できないBASIC statementがある
 			in_data.SetTypeFlag(psExtendBasic, true);
@@ -236,8 +259,11 @@ bool Parse::CheckAsciiDataFormat(PsFileInput &in_data)
 	PsFileData    out_data;
 	PsFileData    tmp_data;
 	ParseResult   result;
+	ParseAttr     pattr;
 	bool st = false;
 	int  sti;
+
+	pattr.DoesAddSpaceAfterColon(gConfig.DoesAddSpaceAfterColon());
 
 	out_data.Empty();
 	mParsedData.Empty();
@@ -274,19 +300,25 @@ bool Parse::CheckAsciiDataFormat(PsFileInput &in_data)
 			mErrInfo.ShowMsgBox();
 			return false;
 		}
+		out_data.Empty();
+		st = ParseAsciiToColored(tmp_data, out_data, pattr, &result);
+		Report(result, mParsedData.GetData());
 		mParsedData.SetType(in_data.GetType());
 		mParsedData.SetCharType(out_data.GetCharType());
 		in_data.SetCharType(out_data.GetCharType());
 		// UTF-8文字に変換する
-		st = ConvAsciiToUTF8(tmp_data, &mParsedData);
+		st = ConvAsciiToUTF8(out_data, &mParsedData);
 	} else {
 		// UTF-8で読めない or 7ビット文字のみ アスキー形式
 		in_data.SetTypeFlag(psAscii, true);
 		in_data.SetTypeFlag(psUTF8, false);
 		in_data.SeekStartPos();
 		out_data.Empty();
+		out_data.SetType(in_data.GetType());
 		mParsedData.Empty();
-		ReadAsciiText(in_data, out_data, false);
+		ReadAsciiText(in_data, tmp_data, false);
+		st = ParseAsciiToColored(tmp_data, out_data, pattr, &result);
+		Report(result, mParsedData.GetData());
 		// interace 文字に変換する
 		mParsedData.SetTypeFlag(psAscii | psUTF8, true);
 		mParsedData.SetCharType(GetCharType(0));
@@ -297,7 +329,7 @@ bool Parse::CheckAsciiDataFormat(PsFileInput &in_data)
 }
 
 // 入力ファイルの形式を変更して読み直す
-bool Parse::ReloadOpendAsciiData(int type, int mask, const wxString &char_type)
+bool Parse::ReloadOpendAsciiData(int type, int mask, const wxString &char_type, const wxString &basic_type)
 {
 	if (!mInFile.Exist()) {
 		// データがない
@@ -308,15 +340,20 @@ bool Parse::ReloadOpendAsciiData(int type, int mask, const wxString &char_type)
 
 	mInFile.SetTypeFlag(mask, false);
 	mInFile.SetTypeFlag(type, true);
-	mInFile.SetCharType(char_type);
-
+	if (char_type != wxEmptyString) {
+		mInFile.SetCharType(char_type);
+	}
+	if (basic_type != wxEmptyString) {
+		mInFile.SetBasicType(basic_type);
+	}
 	return ReloadAsciiData(mInFile, out_type);
 }
+#if 0
 // 表示用データの形式を変更して読み直す
-bool Parse::ReloadParsedData(int type, int mask, const wxString &char_type)
+bool Parse::ReloadParsedAsciiData(int type, int mask, const wxString &char_type, const wxString &basic_type)
 {
-	if (!mInFile.Exist()) {
-		// データがない
+	if (!mInFile.Exist() || !mInFile.GetTypeFlag(psAscii)) {
+		// データがない or Binaryのとき
 		return false;
 	}
 
@@ -324,12 +361,45 @@ bool Parse::ReloadParsedData(int type, int mask, const wxString &char_type)
 
 	out_type.SetTypeFlag(mask, false);
 	out_type.SetTypeFlag(type, true);
-	out_type.SetCharType(char_type);
+	if (char_type != wxEmptyString) {
+		out_type.SetCharType(char_type);
+	}
+	if (basic_type != wxEmptyString) {
+		out_type.SetBasicType(basic_type);
+	}
+	return ReloadAsciiData(mInFile, out_type);
+}
+#endif
+// 表示用データの形式を変更して読み直す
+bool Parse::ReloadParsedData(int type, int mask, const wxString &char_type, const wxString &basic_type)
+{
+	PsFileType out_type(mParsedData.GetType());
+
+	out_type.SetTypeFlag(mask, false);
+	out_type.SetTypeFlag(type, true);
+	if (char_type != wxEmptyString) {
+		out_type.SetCharType(char_type);
+	}
+
+	if (!mInFile.GetTypeFlag(psAscii)) {
+		out_type.SetBasicType(mInFile.GetBasicType());
+	}
+	if (basic_type != wxEmptyString) {
+		out_type.SetBasicType(basic_type);
+	}
+	return ReloadParsedData(out_type);
+}
+// 表示用データの形式を変更して読み直す
+bool Parse::ReloadParsedData(PsFileType &out_type)
+{
+	if (!mInFile.Exist()) {
+		// データがない
+		return false;
+	}
 
 	if (mInFile.GetTypeFlag(psAscii)) {
 		return ReloadAsciiData(mInFile, out_type);
 	} else {
-		out_type.SetBasicType(mInFile.GetBasicType());
 		return ReloadBinaryData(mInFile, out_type);
 	}
 }
@@ -356,7 +426,9 @@ bool Parse::ReloadBinaryData(PsFileInput &in_file, PsFileType &out_type)
 {
 	PsFileData out_data;
 	ParseResult result;
-	bool st;
+	ParseAttr pattr;
+
+	pattr.DoesAddSpaceAfterColon(gConfig.DoesAddSpaceAfterColon());
 
 	out_data.Empty();
 	mParsedData.Empty();
@@ -364,11 +436,25 @@ bool Parse::ReloadBinaryData(PsFileInput &in_file, PsFileType &out_type)
 
 	out_data.SetType(out_type);
 	in_file.SeekStartPos();
-	st = ReadBinaryToAscii(in_file, out_data, &result);
-	Report(result, mParsedData.GetData());
+	if (in_file.GetBasicType() != out_type.GetBasicType()) {
+		// 違うBASICのとき
+		// まず、ASCIIテキストにする
+		PsFileData tmp_data;
+		tmp_data.SetTypeFlag(psAscii, true);
+		tmp_data.SetBasicType(in_file.GetBasicType());
+		ReadBinaryToAscii(in_file, tmp_data, &result);
+		// 色付け
+		ParseAsciiToColored(tmp_data, out_data, pattr, &result);
+		Report(result, mParsedData.GetData());
+	} else {
+		// 同じBASICのとき
+		// 解析＆色付け
+		ReadBinaryToAsciiColored(in_file, out_data, pattr, &result);
+		Report(result, mParsedData.GetData());
+	}
 	// interace or noninterace 文字に変換する
 	mParsedData.SetType(out_type);
-	st = ConvAsciiToUTF8(out_data, &mParsedData);
+	ConvAsciiToUTF8(out_data, &mParsedData);
 
 	return true;
 }
@@ -378,11 +464,15 @@ bool Parse::ReloadAsciiData(PsFileInput &in_file, PsFileType &out_type)
 {
 	PsFileData  tmp_data;
 	PsFileData  in_data;
+	PsFileData  out_data;
 	ParseResult result;
-	bool st;
+	ParseAttr   pattr;
+
+	pattr.DoesAddSpaceAfterColon(gConfig.DoesAddSpaceAfterColon());
 
 	tmp_data.Empty();
 	in_data.Empty();
+	out_data.Empty();
 	mParsedData.Empty();
 	result.Empty();
 
@@ -392,18 +482,21 @@ bool Parse::ReloadAsciiData(PsFileInput &in_file, PsFileType &out_type)
 		// UTF-8テキスト
 		ReadAsciiText(in_file, in_data, true);
 		// 一旦ASCIIにする
-		st = ConvUTF8ToAscii(in_data, &tmp_data, &result);
+		ConvUTF8ToAscii(in_data, &tmp_data, &result);
+		out_data.SetType(out_type);
+		ParseAsciiToColored(tmp_data, out_data, pattr, &result);
 		Report(result, mParsedData.GetData());
-		// interace or noninterace 文字に変換する
-		mParsedData.SetType(out_type);
-		st = ConvAsciiToUTF8(tmp_data, &mParsedData);
 	} else {
 		// ASCIIテキスト
 		ReadAsciiText(in_file, in_data, false);
-		// interace or noninterace 文字に変換する
-		mParsedData.SetType(out_type);
-		st = ConvAsciiToUTF8(in_data, &mParsedData);
+		out_data.SetType(out_type);
+		ParseAsciiToColored(in_data, out_data, pattr, &result);
+		Report(result, mParsedData.GetData());
 	}
+	// interace or noninterace 文字に変換する
+	mParsedData.SetType(out_type);
+	ConvAsciiToUTF8(out_data, &mParsedData);
+
 	return true;
 }
 
@@ -486,6 +579,7 @@ bool Parse::ExportData()
 	PsFileData out_data;
 	PsFileStrOutput out_file;
 	ParseResult result;
+//	ParseAttr pattr;
 
 	in_data.Empty();
 	out_data.Empty();
@@ -598,10 +692,11 @@ bool Parse::ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseR
 	// body
 	wxUint8 vals[10];
 	long vall;
-	bool quoted = false;
-	bool data_area = false;
-	bool alldata_area = false;
-	bool comment_area = false;
+	wxUint8 area = 0;
+//	bool quoted = false;
+//	bool data_area = false;
+//	bool alldata_area = false;
+//	bool comment_area = false;
 
 	wxString body = _T("");
 	wxString chrstr;
@@ -679,20 +774,18 @@ bool Parse::ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseR
 					body += chrstr;
 					in_file.Seek(1-vlen, wxFromCurrent);
 					vcol++;
-					if (alldata_area != true && comment_area != true) {
-						quoted = quoted ? false : true;	// toggle quoted string
-					}
+					area = (area & QUOTED_AREA) ? area & ~QUOTED_AREA : area | QUOTED_AREA;	// toggle quoted string
 				} else {
-					if (quoted || alldata_area || comment_area) {
+					if (area & (QUOTED_AREA | ALLDATA_AREA | COMMENT_AREA)) {
 						// quoted string or all DATA line or REM line
 						chrstr = wxString::From8BitData((const char *)vals, 1);
 						body += chrstr;
 						in_file.Seek(1-vlen, wxFromCurrent);
 						vcol++;
-					} else if (data_area) {
+					} else if (area & DATA_AREA) {
 						// DATA line
 						if (vals[0] == 0x3a) {
-							data_area = false;	// end of data area
+							area &= ~DATA_AREA;	// end of data area
 						}
 						chrstr = wxString::From8BitData((const char *)vals, 1);
 						body += chrstr;
@@ -747,9 +840,11 @@ bool Parse::ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseR
 							item = mBasicCodeTbl.FindByCode(vals);
 						}
 						if (item != NULL) {
-							if (item->FindAttr(_T("colon"))) { // ELSE statement
-								if (body.Right(1) == _T(":")) {
-									body = body.Left(body.Len()-1); // trim last char ':'
+							wxUint32 attr = item->GetAttr();
+							if (attr & CodeMapItem::ATTR_COLON) { // ELSE statement
+								int len = (int)body.Len()-1;
+								if (len >= 0 && body.GetChar(len) == ':') {
+									body = body.Left(len); // trim last char ':'
 								}
 							}
 
@@ -757,15 +852,15 @@ bool Parse::ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseR
 							in_file.Seek((int)(item->GetCodeLength())-vlen, wxFromCurrent);
 							vcol+=item->GetCodeLength();
 
-							if (item->FindAttr(_T("alldata"))) { // all DATA statement
+							if (attr & CodeMapItem::ATTR_ALLDATA) { // all DATA statement
 
-								alldata_area = true;
-							} else if (item->FindAttr(_T("data"))) { // DATA statement
+								area |= ALLDATA_AREA;
+							} else if (attr & CodeMapItem::ATTR_DATA) { // DATA statement
 
-								data_area = true;
-							} else if (item->FindAttr(_T("comment"))) { // ' REM statement
+								area |= DATA_AREA;
+							} else if (attr & CodeMapItem::ATTR_COMMENT) { // ' REM statement
 
-								comment_area = true;
+								area |= COMMENT_AREA;
 							}
 						} else {
 							chrstr = _T("");
@@ -777,6 +872,7 @@ bool Parse::ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseR
 									result->Add(vrow, vcol, line_number, name, prErrInvalidBasicCode);
 								}
 							}
+							// variable name
 							chrstr = wxString::From8BitData((const char *)vals, 1);
 							body += chrstr;
 							in_file.Seek(1-vlen, wxFromCurrent);
@@ -793,10 +889,376 @@ bool Parse::ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseR
 			out_data.Add(chrstr + body);
 
 			// clear val
-			quoted = false;
-			data_area = false;
-			alldata_area = false;
-			comment_area = false;
+			area = 0;
+			body = _T("");
+
+			// next phase
+			phase = 1;
+			break;
+
+		}
+	}
+	if (stopped) {
+		if (result) {
+			result->Add(vrow, vcol, line_number, name, prErrStopInvalidBasicCode);
+		}
+		return false;
+	}
+	return true;
+
+}
+
+/// 中間言語からアスキー形式色付きテキストに変換
+bool Parse::ReadBinaryToAsciiColored(PsFileInput &in_file, PsFileData &out_data, const ParseAttr &pattr, ParseResult *result)
+{
+	bool extend_basic = out_data.GetTypeFlag(psExtendBasic);	// DISK BASICか
+	int machine_type = out_data.GetMachineType();
+	wxString basic_type = out_data.GetBasicType();
+
+	bool add_space_colon = pattr.DoesAddSpaceAfterColon();
+
+	wxString name = _("Parse Binary");
+
+	long next_addr;				// next address
+	long line_number = 0;		// line number
+	// body
+	wxUint8 vals[10];
+	long vall;
+	wxUint8 area = 0;
+	int  linenumber_area = 0;
+
+	wxString body = _T("");
+	wxString chrstr;
+	CodeMapItem *item;
+
+	int vrow = 0;
+	int vcol = 0;
+	int vlen = 0;
+	int llen = 0;
+
+	int phase = 1;
+
+	int error_count = 0;	// エラー発生数
+	bool stopped = false;
+
+	// parse start
+
+	while(!in_file.Eof() && phase >= 0) {
+		memset(vals, 0, sizeof(vals));
+		if (error_count > 20) {
+			// エラーが多いので解析中止
+			stopped = true;
+			break;
+		}
+		switch(phase) {
+//		case 0:
+//			// get header
+//			in_file.file.Read((void *)hsign, 3);
+//			// next phase
+//			phase = 1;
+//			break;
+//
+		case 1:
+			// get next address
+			in_file.Read(vals, 2);
+			next_addr = BytesToLong(vals, 2);
+			if (next_addr == 0) {
+				// end
+				phase = -1;
+			} else {
+				// next phase
+				phase = 2;
+				vrow++;
+			}
+			break;
+
+		case 2:
+			// get line number
+			in_file.Read(vals, 2);
+			line_number = BytesToLong(vals, 2);
+			// next phase
+			phase = 3;
+
+			vcol = 0;
+			break;
+
+		case 3:
+			// get 10 chars
+
+			vlen = (int)in_file.Read(vals, 10);
+
+			if (vlen == 0) {
+				// end
+				phase = -1;
+				break;
+			} else {
+				if (vals[0] == 0) {
+					// end of line
+					phase = 4;
+					in_file.Seek(1-vlen, wxFromCurrent);
+					vcol++;
+					break;
+				} else if (vals[0] == 0x22) {
+					// double quote
+					if (!(area & QUOTED_AREA)) {
+						if (!(area & COMMENT_AREA)) {
+							if (add_space_colon) {
+								// add space after comma
+								llen = (int)body.Len() - 1;
+								if (llen >= 0 && (body.GetChar(llen) == ',')) {
+									body += _T(" ");
+								}
+							}
+							body += ESC_CODEN;
+							body += wxT('q');
+						}
+					}
+					chrstr = wxString::From8BitData((const char *)vals, 1);
+					body += chrstr;
+					in_file.Seek(1-vlen, wxFromCurrent);
+					vcol++;
+					if (area & QUOTED_AREA) {
+						if (!(area & COMMENT_AREA)) {
+							body += ESC_CODEN;
+							body += wxT('e');
+						}
+						area &= ~QUOTED_AREA;
+					} else {
+						area |= QUOTED_AREA;
+					}
+				} else {
+					if (area & (QUOTED_AREA | COMMENT_AREA)) {
+						// quoted string or REM line
+						chrstr = wxString::From8BitData((const char *)vals, 1);
+						body += chrstr;
+						in_file.Seek(1-vlen, wxFromCurrent);
+						vcol++;
+					} else if (area & ALLDATA_AREA) {
+						// all DATA line
+						if (add_space_colon && (area & QUOTED_AREA) == 0) {
+							// add space after comma
+							llen = (int)body.Len() - 1;
+							if (llen >= 0 && (body.GetChar(llen) == ',')) {
+								body += _T(" ");
+							}
+						}
+						chrstr = wxString::From8BitData((const char *)vals, 1);
+						body += chrstr;
+						in_file.Seek(1-vlen, wxFromCurrent);
+						vcol++;
+					} else if (area & DATA_AREA) {
+						// DATA line
+						if (vals[0] == 0x3a) {
+							area &= ~DATA_AREA;	// end of data area
+							body += ESC_CODEN;
+							body += wxT('e');
+						}
+						if (add_space_colon && (area & QUOTED_AREA) == 0) {
+							// add space after comma
+							llen = (int)body.Len() - 1;
+							if (llen >= 0 && (body.GetChar(llen) == ',')) {
+								body += _T(" ");
+							}
+						}
+						chrstr = wxString::From8BitData((const char *)vals, 1);
+						body += chrstr;
+						in_file.Seek(1-vlen, wxFromCurrent);
+						vcol++;
+					} else if (machine_type == MACHINE_TYPE_S1 && vals[0] == 0xfe) {
+						if (add_space_colon) {
+							// add space after colon or comma
+							llen = (int)body.Len() - 1;
+							if (llen >= 0 && (body.GetChar(llen) == ':' || body.GetChar(llen) == ',')) {
+								body += _T(" ");
+							}
+						}
+						if (area & SENTENCE_AREA) {
+							area &= ~SENTENCE_AREA;	// end of sentence area
+							body += ESC_CODEN;
+							body += wxT('e');
+						}
+						// S1 BASIC has numeric converted to binary.
+						if (vals[1] == 0x01) {
+							// integer number 1byte abs(0 - 255)
+							chrstr = wxString::Format(_T("%d"),vals[2]);
+							body += chrstr;
+							in_file.Seek(3-vlen, wxFromCurrent);
+							vcol+=3;
+
+						} else if (vals[1] == 0x02) {
+							// integer number 2bytes abs(256 - 32767)
+							vall = BytesToLong(&vals[2], 2);
+							chrstr = wxString::Format(_T("%ld"),vall);
+							body += chrstr;
+							in_file.Seek(4-vlen, wxFromCurrent);
+							vcol+=4;
+
+						} else if (vals[1] == 0x04) {
+							// float (4bytes) abs
+							FloatBytesToStr(&vals[2], 4, chrstr);
+							body += chrstr;
+							in_file.Seek(6-vlen, wxFromCurrent);
+							vcol+=6;
+
+						} else if (vals[1] == 0x08) {
+							// double (8bytes) abs
+							FloatBytesToStr(&vals[2], 8, chrstr);
+							body += chrstr;
+							in_file.Seek(10-vlen, wxFromCurrent);
+							vcol+=10;
+
+						} else if (vals[1] == 0xf2) {
+							// goto gosub integer number 2bytes
+							vall = BytesToLong(&vals[2], 2);
+							body += ESC_CODEN;
+							body += wxT('l');
+							chrstr = wxString::Format(_T("%ld"),vall);
+							body += chrstr;
+							body += ESC_CODEN;
+							body += wxT('e');
+							in_file.Seek(4-vlen, wxFromCurrent);
+							vcol+=4;
+
+						}
+					} else {
+						// find command statement
+						mBasicCodeTbl.FindSectionByType(machine_type);
+						item = mBasicCodeTbl.FindByCode(vals);
+						if (item == NULL && extend_basic) {
+							mBasicCodeTbl.FindSection(basic_type);
+							item = mBasicCodeTbl.FindByCode(vals);
+						}
+						if (item != NULL) {
+							wxUint32 attr2 = item->GetAttr2();
+							if (attr2 & CodeMapItem::ATTR_COLON) { // ELSE statement
+								llen = (int)body.Len() - 1;
+								if (llen >= 0 && body.GetChar(llen) == ':') {
+									body = body.Left(llen); // trim last char ':'
+								}
+							}
+							if (add_space_colon) {
+								llen = (int)body.Len() - 1;
+								if (llen >= 0 && (body.GetChar(llen) == ':' || body.GetChar(llen) == ',')) {
+									body += _T(" ");
+								}
+							}
+
+							if (attr2 & CodeMapItem::ATTR_ALLDATA) { // all DATA statement
+								if (!(area & ALLDATA_AREA)) {
+									area |= ALLDATA_AREA;
+									body += ESC_CODEN;
+									body += wxT('d');
+								}
+							} else if (attr2 & CodeMapItem::ATTR_DATA) { // DATA statement
+								if (!(area & DATA_AREA)) {
+									area |= DATA_AREA;
+									body += ESC_CODEN;
+									body += wxT('d');
+								}
+							} else if (attr2 & CodeMapItem::ATTR_COMMENT) { // ' REM statement
+								if (!(area & COMMENT_AREA)) {
+									area |= COMMENT_AREA;
+									body += ESC_CODEN;
+									body += wxT('c');
+								}
+							}
+							if (machine_type != MACHINE_TYPE_S1) {
+								if (linenumber_area && (attr2 & CodeMapItem::ATTR_CONTLINENUMBER) != 0) {
+									// 行番号指定は続く
+									linenumber_area = 1;
+								} else if (linenumber_area && (attr2 & CodeMapItem::ATTR_CONTONELINENUMBER) != 0) {
+									// 最初の数値のみ行番号
+									linenumber_area = 2;
+								} else if ((attr2 & (CodeMapItem::ATTR_CONTONELINENUMBER | CodeMapItem::ATTR_ONELINENUMBER)) == CodeMapItem::ATTR_ONELINENUMBER) {
+									// 最初の数値のみ行番号
+									linenumber_area = 2;
+								} else if ((attr2 & (CodeMapItem::ATTR_CONTLINENUMBER | CodeMapItem::ATTR_ONELINENUMBER | CodeMapItem::ATTR_LINENUMBER)) == CodeMapItem::ATTR_LINENUMBER) {
+									// 行番号はその命令内の数値全て
+									linenumber_area = 1;
+								} else {
+									linenumber_area = 0;
+								}
+							}
+
+							if ((area & (ALLDATA_AREA | DATA_AREA | COMMENT_AREA)) == 0) {
+								if (!(area & SENTENCE_AREA)) {
+									area |= SENTENCE_AREA;
+									body += ESC_CODEN;
+									body += wxT('v');
+								}
+							}
+
+							body += item->GetStr();
+							in_file.Seek((int)(item->GetCodeLength())-vlen, wxFromCurrent);
+							vcol+=item->GetCodeLength();
+
+						} else {
+							chrstr = _T("");
+							if (area & SENTENCE_AREA) {
+								body += ESC_CODEN;
+								body += wxT('e');
+								area &= ~SENTENCE_AREA;
+							}
+							if (vals[0] < 0x20 || 0x80 <= vals[0]) {
+								// Unknown command (error?)
+								error_count++;
+								// for parse result
+								if (result) {
+									result->Add(vrow, vcol, line_number, name, prErrInvalidBasicCode);
+								}
+								chrstr = wxString::From8BitData((const char *)vals, 1);
+								body += chrstr;
+								in_file.Seek(1-vlen, wxFromCurrent);
+								vcol++;
+							} else if (linenumber_area && 0x30 <= vals[0] && vals[0] <= 0x39) {
+								int n = 0;
+								for(; 0x30 <= vals[n] && vals[n] <= 0x39 && n < 10; n++) {}
+								chrstr = wxString::From8BitData((const char *)vals, n);
+								body += ESC_CODEN;
+								body += wxT('l');
+								body += chrstr;
+								body += ESC_CODEN;
+								body += wxT('e');
+								in_file.Seek(n-vlen, wxFromCurrent);
+								vcol+=n;
+								if (linenumber_area == 2) {
+									linenumber_area = 0;
+								}
+							} else {
+								// variable name
+								if (add_space_colon) {
+									llen = (int)body.Len() - 1;
+									if (llen >= 0 && (body.GetChar(llen) == ':' || body.GetChar(llen) == ',')) {
+										body += _T(" ");
+									}
+								}
+								chrstr = wxString::From8BitData((const char *)vals, 1);
+								body += chrstr;
+								in_file.Seek(1-vlen, wxFromCurrent);
+								vcol++;
+							}
+						}
+					}
+				}
+			}
+			break;
+
+		case 4:
+			// end of line
+			while(area) {
+				if (area & 1) {
+					body += ESC_CODEN;
+					body += wxT('e');
+				}
+				area >>= 1;
+			}
+
+			chrstr.Printf(_T("%cl%ld %ce"),ESC_CODEN,line_number,ESC_CODEN);
+			out_data.Add(chrstr + body);
+
+			// clear val
+			area = 0;
+			linenumber_area = 0;
 			body = _T("");
 
 			// next phase
@@ -818,8 +1280,6 @@ bool Parse::ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseR
 // アスキー形式/UTF-8テキストから中間言語に変換して出力
 bool Parse::ParseAsciiToBinary(PsFileData &in_data, PsFileOutput &out_file, ParseResult *result)
 {
-	bool rc = true;
-
 	mNextAddress = (in_data.GetMachineType() == MACHINE_TYPE_L3 ? iStartAddr[mStartAddr] : 1);
 
 //	wxString outline = _T("");
@@ -832,7 +1292,7 @@ bool Parse::ParseAsciiToBinary(PsFileData &in_data, PsFileOutput &out_file, Pars
 	// body
 	mPrevLineNumber = -1;
 	for(size_t row = 0; row < in_data.GetCount(); row++) {
-		rc = ParseAsciiToBinaryOneLine(in_data.GetType(), in_data[row], out_file, (int)row+1, result);
+		ParseAsciiToBinaryOneLine(in_data.GetType(), in_data[row], out_file, (int)row+1, result);
 	}
 
 	// footer
@@ -849,6 +1309,18 @@ bool Parse::ParseAsciiToBinary(PsFileData &in_data, PsFileOutput &out_file, Pars
 
 }
 
+// アスキー形式を解析して色付けする
+bool Parse::ParseAsciiToColored(PsFileData &in_data, PsFileData &out_data, const ParseAttr &pattr, ParseResult *result)
+{
+	// body
+	mPrevLineNumber = -1;
+	for(size_t row = 0; row < in_data.GetCount(); row++) {
+		ParseAsciiToColoredOneLine(in_data.GetType(), in_data[row], out_data, pattr, (int)row+1, result);
+	}
+
+	return true;
+}
+
 /// 変数文字列を変数文字に変換
 void Parse::ParseVariableString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxUint8 *body, size_t body_size, size_t &body_len, bool &empstr, ParseResult *result)
 {
@@ -863,6 +1335,37 @@ void Parse::ParseVariableString(const wxString &in_data, size_t &pos, int row, l
 			// 変数名は16文字までが有効（エラーにしない）
 		}
 		body_len += AscStrToBytes(chrstr, &body[body_len], body_size-body_len);
+		pos += re_len;
+		empstr = false;
+
+	} else {
+		// 変数名がおかしい（ここにはこない）
+	}
+}
+
+/// 変数文字列を変数文字に変換
+void Parse::ParseVariableString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxString &body, bool &empstr, ParseResult *result)
+{
+	size_t re_start, re_len;
+	wxString chrstr;
+	if (re.Matches(in_data)) {
+		// 変数名
+		re.GetMatch(&re_start,&re_len);
+		chrstr = in_data.Mid(re_start, re_len + 1);
+		if (re_len > 16) {
+			// 変数名は16文字までが有効（エラーにしない）
+		}
+		// 末尾
+		if (!reVariEnd.Matches(chrstr.Right(1))) {
+			chrstr = chrstr.Left(re_len);
+		} else {
+			re_len++;
+		}
+//		body += ESC_CODEN;
+//		body += wxT('v');
+		body += chrstr;
+//		body += ESC_CODEN;
+//		body += wxT('e');
 		pos += re_len;
 		empstr = false;
 
@@ -930,6 +1433,42 @@ void Parse::ParseNumberString(const wxString &in_data, size_t &pos, int row, lon
 	}
 }
 
+/// 数値文字列を数値に変換
+void Parse::ParseNumberString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re_real, wxRegEx &re_exp, wxString &body, bool &empstr, ParseResult *result)
+{
+	size_t re_start = 0,re_len = 0;
+//	int len = 0;
+//	int err = 0;
+	wxString numstr;
+
+	if (re_real.Matches(in_data)) {
+		// 整数 or 実数表記
+		re_real.GetMatch(&re_start,&re_len);
+		numstr = in_data.Mid(re_start, re_len);
+
+		body += numstr;
+		pos += re_len;
+		empstr = false;
+	} else if (re_exp.Matches(in_data)) {
+		// 指数表記
+		re_exp.GetMatch(&re_start,&re_len);
+		numstr = in_data.Mid(re_start, re_len);
+
+		body += numstr;
+		pos += re_len;
+		empstr = false;
+	} else {
+		if (result) result->Add(row+1,pos,line_number,name,prErrInvalidNumber);
+	}
+//	// 数値後のスペースはトリミングする
+//	if (reSpace.Matches(in_data.Mid(re_len))) {
+//		// S1モードでスペースが連続する場合はスペース１つ
+//		reSpace.GetMatch(&re_start,&re_len);
+//		body_len += AscStrToBytes(wxT(" "), &body[body_len], body_size-body_len);
+//		pos+=re_len;
+//	}
+}
+
 /// 行番号文字列を数値に変換
 void Parse::ParseLineNumberString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re_int, wxUint8 *body, size_t body_size, size_t &body_len, bool &empstr, ParseResult *result)
 {
@@ -969,6 +1508,43 @@ void Parse::ParseLineNumberString(const wxString &in_data, size_t &pos, int row,
 	}
 }
 
+/// 行番号文字列を数値に変換
+void Parse::ParseLineNumberString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re_int, wxString &body, bool &empstr, ParseResult *result)
+{
+	size_t re_start = 0,re_len = 0;
+//	int len = 0;
+	int err = 0;
+	wxString numstr;
+
+	if (re_int.Matches(in_data)) {
+		// 整数
+		re_int.GetMatch(&re_start,&re_len);
+		numstr = in_data.Mid(re_start, re_len);
+
+		body += ESC_CODEN;
+		body += wxT('l');
+		body += numstr;
+		body += ESC_CODEN;
+		body += wxT('e');
+
+		if (err != 0) {
+			// overflow
+			if (result) result->Add(row+1,pos,line_number,name,prErrOverflow);
+		}
+		pos += re_len;
+		empstr = false;
+	} else {
+		if (result) result->Add(row+1,pos,line_number,name,prErrInvalidNumber);
+	}
+//	// 数値後のスペースはトリミングする
+//	if (reSpace.Matches(in_data.Mid(re_len))) {
+//		// S1モードでスペースが連続する場合はスペース１つ
+//		reSpace.GetMatch(&re_start,&re_len);
+//		body_len += AscStrToBytes(wxT(" "), &body[body_len], body_size-body_len);
+//		pos+=re_len;
+//	}
+}
+
 /// 8進or16進文字列を文字に変換
 void Parse::ParseOctHexString(const wxString &in_data, const wxString &octhexhed, int base, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxUint8 *body, size_t body_size, size_t &body_len, bool &empstr, ParseResult *result)
 {
@@ -995,6 +1571,37 @@ void Parse::ParseOctHexString(const wxString &in_data, const wxString &octhexhed
 	}
 }
 
+/// 8進or16進文字列を文字に変換
+void Parse::ParseOctHexString(const wxString &in_data, const wxString &octhexhed, int base, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxString &body, bool &empstr, ParseResult *result)
+{
+	size_t re_start, re_len;
+	wxString numstr = in_data.Mid(octhexhed.Length());
+
+	if (re.Matches(numstr)) {
+		// 数値OK
+		re.GetMatch(&re_start,&re_len);
+		numstr = numstr.Mid(re_start, re_len);
+		int rc = CheckOctHexStr(base, numstr);
+		if (!rc) {
+			// overflow
+			if (result) result->Add(row+1,pos,line_number,name,prErrOverflow);
+		}
+//		body += ESC_CODEN;
+//		body += wxT('v');
+		body += octhexhed;
+		pos += octhexhed.Length();
+		body += ESC_CODEN;
+		body += wxT('e');
+		body += numstr;
+		pos += numstr.Length();
+		empstr = false;
+	} else {
+		// 数値NG
+		if (result) result->Add(row+1,pos,line_number,name,prErrInvalidNumber);
+		empstr = true;
+	}
+}
+
 // アスキー形式1行を中間言語に変換して出力
 bool Parse::ParseAsciiToBinaryOneLine(PsFileType &in_file_type, wxString &in_data, PsFileOutput &out_file, int row, ParseResult *result)
 {
@@ -1008,10 +1615,7 @@ bool Parse::ParseAsciiToBinaryOneLine(PsFileType &in_file_type, wxString &in_dat
 
 	wxString name = _("Ascii->Binary");
 
-	bool quoted = false;
-	bool data_area = false;
-	bool alldata_area = false;
-	bool comment_area = false;
+	wxUint8 area = 0;
 	int linenumber_area = 0;
 
 	wxString chrstr;
@@ -1027,6 +1631,7 @@ bool Parse::ParseAsciiToBinaryOneLine(PsFileType &in_file_type, wxString &in_dat
 	wxUint8 body[VALS_SIZE+1];
 	size_t  body_len = 0;
 
+	wxString in_str;
 	size_t pos = 0;
 
 	// line number
@@ -1039,30 +1644,28 @@ bool Parse::ParseAsciiToBinaryOneLine(PsFileType &in_file_type, wxString &in_dat
 
 	// body
 	while(pos < in_data.Len()) {
-		if (in_data[pos] == wxChar('\"')) {
+		in_str = in_data.Mid(pos);
+		if (in_str[0] == 0x22) {
 			// quote
-			quoted = quoted ? false : true;
+			area = (area & QUOTED_AREA) ? (area & ~QUOTED_AREA) : (area | QUOTED_AREA);
 
 		}
 		chrstr.Empty();
 		is_empty_chr = true;
 
 		// find command
-		if (comment_area != true
-		 && data_area != true
-		 && alldata_area != true
-		 && quoted != true
-		) {
+		if (!(area & (COMMENT_AREA | DATA_AREA | ALLDATA_AREA | QUOTED_AREA))) {
 			// search command
 			mBasicCodeTbl.FindSectionByType(machine_type);
-			item = mBasicCodeTbl.FindByStr(in_data.Mid(pos).Upper(), true);
+			item = mBasicCodeTbl.FindByStr(in_str.Upper(), true);
 			if (item == NULL && extend_basic) {
 				mBasicCodeTbl.FindSection(basic_type);
-				item = mBasicCodeTbl.FindByStr(in_data.Mid(pos).Upper(), true);
+				item = mBasicCodeTbl.FindByStr(in_str.Upper(), true);
 			}
 			if (item != NULL) {
 				// find a BASIC sentence
-				if (item->FindAttr(_T("colon"))) {
+				wxUint32 attr = item->GetAttr();
+				if (attr & CodeMapItem::ATTR_COLON) {
 					if (body_len > 0 || machine_type == MACHINE_TYPE_S1) {
 						body_len += AscStrToBytes(_T(":"), &body[body_len], sizeof(body)-body_len);
 					}
@@ -1071,106 +1674,100 @@ bool Parse::ParseAsciiToBinaryOneLine(PsFileType &in_file_type, wxString &in_dat
 				chrstr = wxString::From8BitData((const char *)item->GetCode(), item->GetCodeLength());
 				is_empty_chr = false;
 
-				if (item->FindAttr(_T("comment"))) {
-					comment_area = true;
+				if (attr & CodeMapItem::ATTR_COMMENT) {
+					area |= COMMENT_AREA;
 				}
-				if (item->FindAttr(_T("data"))) {
+				if (attr & CodeMapItem::ATTR_DATA) {
 					// :または行末までDATA
-					data_area = true;
-				} else if (item->FindAttr(_T("alldata"))) {
+					area |= DATA_AREA;
+				} else if (attr & CodeMapItem::ATTR_ALLDATA) {
 					// 行末までDATA
-					alldata_area = true;
+					area |= ALLDATA_AREA;
 				}
-				if (linenumber_area && item->FindAttr(_T("contlinenumber"))) {
+				if (linenumber_area && (attr & CodeMapItem::ATTR_CONTLINENUMBER) != 0) {
 					// 行番号指定は続く
 					linenumber_area = 1;
-				} else if (linenumber_area && item->FindAttr(_T("contonelinenumber"))) {
+				} else if (linenumber_area && (attr & CodeMapItem::ATTR_CONTONELINENUMBER) != 0) {
 					// 最初の数値のみ行番号
 					linenumber_area = 2;
-				} else if (!item->FindAttr(_T("contonelinenumber")) && item->FindAttr(_T("onelinenumber"))) {
+				} else if ((attr & (CodeMapItem::ATTR_CONTONELINENUMBER | CodeMapItem::ATTR_ONELINENUMBER)) == CodeMapItem::ATTR_ONELINENUMBER) {
 					// 最初の数値のみ行番号
 					linenumber_area = 2;
-				} else if (!item->FindAttr(_T("contlinenumber")) && !item->FindAttr(_T("onelinenumber")) && item->FindAttr(_T("linenumber"))) {
+				} else if ((attr & (CodeMapItem::ATTR_CONTLINENUMBER | CodeMapItem::ATTR_ONELINENUMBER | CodeMapItem::ATTR_LINENUMBER)) == CodeMapItem::ATTR_LINENUMBER) {
 					// 行番号はその命令内の数値全て
 					linenumber_area = 1;
 				} else {
 					linenumber_area = 0;
 				}
-				if (item->FindAttr(_T("octstring"))) {
+				if (attr & CodeMapItem::ATTR_OCTSTRING) {
 					// 8進数
-					ParseOctHexString(in_data.Mid(pos), chrstr, 8, pos, row, line_number, name, reOcta, body, sizeof(body), body_len, is_empty_chr, result);
+					ParseOctHexString(in_str, chrstr, 8, pos, row, line_number, name, reOcta, body, sizeof(body), body_len, is_empty_chr, result);
 					chrstr.Empty();
 				}
-				if (item->FindAttr(_T("hexstring"))) {
+				if (attr & CodeMapItem::ATTR_HEXSTRING) {
 					// 16進数
-					ParseOctHexString(in_data.Mid(pos), chrstr, 16, pos, row, line_number, name, reHexa, body, sizeof(body), body_len, is_empty_chr, result);
+					ParseOctHexString(in_str, chrstr, 16, pos, row, line_number, name, reHexa, body, sizeof(body), body_len, is_empty_chr, result);
 					chrstr.Empty();
 				}
 				if (!chrstr.IsEmpty()) {
 					// BASIC中間コードを出力
 					body_len += AscStrToBytes(chrstr, &body[body_len], sizeof(body)-body_len);
 					pos += item->GetStr().Len();
+					continue;
 				}
 			} else {
 				// non BASIC sentence
-				if (reAlpha.Matches(in_data.Mid(pos,1))) {
+				if (reAlpha.Matches(in_str.Left(1))) {
 					// 変数の場合
 					linenumber_area = 0;
-					ParseVariableString(in_data.Mid(pos), pos, row, line_number, name, reAlphaNumeric, body, sizeof(body), body_len, is_empty_chr, result);
-				} else if (machine_type == MACHINE_TYPE_S1 && in_data[pos] == 0x2e) {
+					ParseVariableString(in_str, pos, row, line_number, name, reAlphaNumeric, body, sizeof(body), body_len, is_empty_chr, result);
+				} else if (machine_type == MACHINE_TYPE_S1 && in_str[0] == 0x2e) {
 					// S1モードでピリオドの場合
 					if (linenumber_area) {
 						// 行番号は指定できないはず
 						if (result) result->Add(row+1,pos,line_number,name,prErrInvalidLineNumber);
 					} else {
 						// 数値を変換
-						ParseNumberString(in_data.Mid(pos), pos, row, line_number, name, reNumberReald, reNumberExpd, body, sizeof(body), body_len, is_empty_chr, result);
+						ParseNumberString(in_str, pos, row, line_number, name, reNumberReald, reNumberExpd, body, sizeof(body), body_len, is_empty_chr, result);
 					}
-				} else if (machine_type == MACHINE_TYPE_S1 && reNumber.Matches(in_data.Mid(pos,1))) {
+				} else if (machine_type == MACHINE_TYPE_S1 && reNumber.Matches(in_str.Left(1))) {
 					// S1モードで数値の場合
 					if (linenumber_area) {
 						// 行番号の場合
-						ParseLineNumberString(in_data.Mid(pos), pos, row, line_number, name, reNumber, body, sizeof(body), body_len, is_empty_chr, result);
+						ParseLineNumberString(in_str, pos, row, line_number, name, reNumber, body, sizeof(body), body_len, is_empty_chr, result);
 					} else {
 						// 数値を変換
-						ParseNumberString(in_data.Mid(pos), pos, row, line_number, name, reNumberReal, reNumberExp, body, sizeof(body), body_len, is_empty_chr, result);
+						ParseNumberString(in_str, pos, row, line_number, name, reNumberReal, reNumberExp, body, sizeof(body), body_len, is_empty_chr, result);
 					}
 					if (linenumber_area == 2) {
 						// 最初の数値のみ行番号
 						linenumber_area = 0;
 					}
-//				} else if (machine_type == MACHINE_TYPE_S1 && reSpace.Matches(in_data.Mid(pos))) {
-//					// S1モードでスペースが連続する場合はスペース１つ
-//					size_t st, le;
-//					reSpace.GetMatch(&st,&le);
-//					body_len += AscStrToBytes(wxT(" "), &body[body_len], sizeof(body)-body_len);
-//					pos+=le;
-//					is_empty_chr = false;
-				} else if (in_data[pos] == 0x3a) {
+				} else if (in_str[0] == 0x3a) {
 					// colon
 					linenumber_area = 0;
-					data_area = false;
-				} else if ((wxUint32)in_data[pos] >= 0x80) {
+					area &= ~DATA_AREA;
+				} else if ((wxUint32)in_str[0] >= 0x80) {
 					// unknown char ?(error)
 					if (result) result->Add(row+1,pos,line_number,name,prErrInvalidChar);
 				}
 			}
 		} else {
-			if (machine_type == MACHINE_TYPE_S1 && in_data[pos] == 0xfe) {
+			if (machine_type == MACHINE_TYPE_S1 && in_str[0] == 0xfe) {
 				// S1では0xfeの文字は使用できない
 				if (result && !has_code_fe) result->Add(row+1,pos,line_number,name,prErrEraseCodeFE);
-				is_empty_chr = false;
-				pos++;
 				has_code_fe = true;
+				pos++;
+				continue;
 			}
-			if (in_data[pos] == 0x3a) {
+			if (in_str[0] == 0x3a) {
 				// colon
-				data_area = false;
+				area &= ~DATA_AREA;
 			}
 		}
 		if (is_empty_chr) {
 			// 元の文字をそのまま入れる
-			chrstr = in_data[pos];
+			chrstr = in_str[0];
 			body_len += AscStrToBytes(chrstr, &body[body_len], sizeof(body)-body_len);
 			pos++;
 		}
@@ -1186,6 +1783,272 @@ bool Parse::ParseAsciiToBinaryOneLine(PsFileType &in_file_type, wxString &in_dat
 		buf[0] = '\0';
 		out_file.Write(buf, 1);
 	}
+	return true;
+}
+
+
+// アスキー形式1行を解析して色付けする
+bool Parse::ParseAsciiToColoredOneLine(PsFileType &in_file_type, wxString &in_data, PsFileData &out_data, const ParseAttr &pattr, int row, ParseResult *result)
+{
+	if (in_data.IsEmpty()) {
+		return true;
+	}
+
+	bool extend_basic = out_data.GetTypeFlag(psExtendBasic);	// DISK BASICか
+	int machine_type = out_data.GetMachineType();
+	wxString basic_type = out_data.GetBasicType();
+
+	bool add_space_colon = pattr.DoesAddSpaceAfterColon();
+
+	wxString name = _("Parse Ascii");
+
+	wxUint8 area = 0;
+	int linenumber_area = 0;
+
+	wxString chrstr;
+	bool is_empty_chr;
+	bool has_code_fe = false;
+
+	CodeMapItem *item;
+
+	long line_number;
+
+	wxString body;
+
+	wxString in_str;
+	size_t pos = 0;
+	int llen = 0;
+
+	// line number
+	line_number = GetLineNumber(in_data, &pos);
+	if (line_number < mPrevLineNumber) {
+		// 行番号が前行より小さい
+		if (result) result->Add(row+1,pos,line_number,name,prErrDiscontLineNumber);
+	}
+	mPrevLineNumber = line_number;
+
+	body = wxUniChar(ESC_CODEN);
+	body += wxT('l');
+	body += in_data.Left(pos);
+	body += ESC_CODEN;
+	body += wxT('e');
+
+	// body
+	while(pos < in_data.Len()) {
+		in_str = in_data.Mid(pos);
+		if (in_str[0] == 0x22) {
+			// quote
+			if (!(area & QUOTED_AREA)) {
+				if (!(area & COMMENT_AREA)) {
+					if (add_space_colon) {
+						llen = (int)body.Len() - 1;
+						if (llen >= 0 && body.GetChar(llen) == ',') {
+							body += _T(" ");
+						}
+					}
+					body += ESC_CODEN;
+					body += wxT('q');
+				}
+			}
+			body += in_str[0];
+			pos++;
+			if (area & QUOTED_AREA) {
+				if (!(area & COMMENT_AREA)) {
+					body += ESC_CODEN;
+					body += wxT('e');
+				}
+				area &= ~QUOTED_AREA;
+			} else {
+				area |= QUOTED_AREA;
+			}
+			continue;
+		}
+		chrstr.Empty();
+		is_empty_chr = true;
+
+		// find command
+		if (!(area & (COMMENT_AREA | DATA_AREA | ALLDATA_AREA | QUOTED_AREA))) {
+			// search command
+			mBasicCodeTbl.FindSectionByType(machine_type);
+			item = mBasicCodeTbl.FindByStr(in_str.Upper(), true);
+			if (item == NULL && extend_basic) {
+				mBasicCodeTbl.FindSection(basic_type);
+				item = mBasicCodeTbl.FindByStr(in_str.Upper(), true);
+			}
+			if (item != NULL) {
+				// found a BASIC sentence
+				if (add_space_colon) {
+					llen = (int)body.Len() - 1;
+					if (llen >= 0 && (body.GetChar(llen) == ':' || body.GetChar(llen) == ',')) {
+						body += _T(" ");
+					}
+				}
+				wxUint32 attr2 = item->GetAttr2();
+				if (attr2 & CodeMapItem::ATTR_COMMENT) {
+					if (!(area & COMMENT_AREA)) {
+						area |= COMMENT_AREA;
+						body += ESC_CODEN;
+						body += wxT('c');
+					}
+				}
+				if (attr2 & CodeMapItem::ATTR_DATA) {
+					// :または行末までDATA
+					if (!(area & DATA_AREA)) {
+						area |= DATA_AREA;
+						body += ESC_CODEN;
+						body += wxT('d');
+					}
+				} else if (attr2 & CodeMapItem::ATTR_ALLDATA) {
+					// 行末までDATA
+					if (!(area & ALLDATA_AREA)) {
+						area |= ALLDATA_AREA;
+						body += ESC_CODEN;
+						body += wxT('d');
+					}
+				}
+				if (!(area & (COMMENT_AREA | DATA_AREA | ALLDATA_AREA))) {
+					if (!(area & SENTENCE_AREA)) {
+						area |= SENTENCE_AREA;
+						body += ESC_CODEN;
+						body += wxT('v');
+					}
+				}
+
+				chrstr = in_str.Left(item->GetStr().Len());
+				is_empty_chr = false;
+
+				if (linenumber_area && (attr2 & CodeMapItem::ATTR_CONTLINENUMBER) != 0) {
+					// 行番号指定は続く
+					linenumber_area = 1;
+				} else if (linenumber_area && (attr2 & CodeMapItem::ATTR_CONTONELINENUMBER) != 0) {
+					// 最初の数値のみ行番号
+					linenumber_area = 2;
+				} else if ((attr2 & (CodeMapItem::ATTR_CONTONELINENUMBER | CodeMapItem::ATTR_ONELINENUMBER)) == CodeMapItem::ATTR_ONELINENUMBER) {
+					// 最初の数値のみ行番号
+					linenumber_area = 2;
+				} else if ((attr2 & (CodeMapItem::ATTR_CONTLINENUMBER | CodeMapItem::ATTR_ONELINENUMBER | CodeMapItem::ATTR_LINENUMBER)) == CodeMapItem::ATTR_LINENUMBER) {
+					// 行番号はその命令内の数値全て
+					linenumber_area = 1;
+				} else {
+					linenumber_area = 0;
+				}
+
+				if (attr2 & CodeMapItem::ATTR_OCTSTRING) {
+					// 8進数
+					ParseOctHexString(in_str, chrstr, 8, pos, row, line_number, name, reOcta, body, is_empty_chr, result);
+					chrstr.Empty();
+					area &= ~SENTENCE_AREA;
+				}
+				if (attr2 & CodeMapItem::ATTR_HEXSTRING) {
+					// 16進数
+					ParseOctHexString(in_str, chrstr, 16, pos, row, line_number, name, reHexa, body, is_empty_chr, result);
+					chrstr.Empty();
+					area &= ~SENTENCE_AREA;
+				}
+				if (!chrstr.IsEmpty()) {
+					// BASIC中間コードを出力
+					body += chrstr;
+					pos += item->GetStr().Len();
+				}
+				continue;
+			} else {
+				// non BASIC sentence
+				if (area & SENTENCE_AREA) {
+					body += ESC_CODEN;
+					body += wxT('e');
+					area &= ~SENTENCE_AREA;
+				}
+				if (add_space_colon) {
+					llen = (int)body.Len() - 1;
+					if (llen >= 0 && (body.GetChar(llen) == ':' || body.GetChar(llen) == ',')) {
+						body += _T(" ");
+					}
+				}
+				if (reAlpha.Matches(in_str.Left(1))) {
+					// 変数の場合
+					linenumber_area = 0;
+					ParseVariableString(in_str, pos, row, line_number, name, reAlphaNumeric, body, is_empty_chr, result);
+				} else if (in_str[0] == 0x2e) {
+					// S1モードでピリオドの場合
+					if (linenumber_area) {
+						// 行番号は指定できないはず
+						if (result) result->Add(row+1,pos,line_number,name,prErrInvalidLineNumber);
+					} else {
+						// 数値を変換
+						ParseNumberString(in_str, pos, row, line_number, name, reNumberReald, reNumberExpd, body, is_empty_chr, result);
+					}
+				} else if (reNumber.Matches(in_str.Left(1))) {
+					// S1モードで数値の場合
+					if (linenumber_area) {
+						// 行番号の場合
+						ParseLineNumberString(in_str, pos, row, line_number, name, reNumber, body, is_empty_chr, result);
+					} else {
+						// 数値を変換
+						ParseNumberString(in_str, pos, row, line_number, name, reNumberReal, reNumberExp, body, is_empty_chr, result);
+					}
+					if (linenumber_area == 2) {
+						// 最初の数値のみ行番号
+						linenumber_area = 0;
+					}
+				} else if (in_str[0] == 0x3a) {
+					// colon
+					linenumber_area = 0;
+					if (area & DATA_AREA) {
+						area &= ~DATA_AREA;
+						body += ESC_CODEN;
+						body += wxT('e');
+					}
+					body += in_str[0];
+					pos++;
+					continue;
+				} else if ((wxUint32)in_str[0] >= 0x80) {
+					// unknown char ?(error)
+					if (result) result->Add(row+1,pos,line_number,name,prErrInvalidChar);
+				}
+			}
+		} else {
+			if (machine_type == MACHINE_TYPE_S1 && in_str[0] == 0xfe) {
+				// S1では0xfeの文字は使用できない
+				if (result && !has_code_fe) result->Add(row+1,pos,line_number,name,prErrEraseCodeFE);
+				has_code_fe = true;
+				pos++;
+				continue;
+			}
+			if (add_space_colon && (area & (COMMENT_AREA | QUOTED_AREA)) == 0) {
+				llen = (int)body.Len() - 1;
+				if (llen >= 0 && body.GetChar(llen) == ',') {
+					body += _T(" ");
+				}
+			}
+			if (in_str[0] == 0x3a) {
+				// colon
+				if (area & DATA_AREA) {
+					area &= ~DATA_AREA;
+					body += ESC_CODEN;
+					body += wxT('e');
+					body += in_str[0];
+					pos++;
+					continue;
+				}
+			}
+		}
+		if (is_empty_chr) {
+			// 元の文字をそのまま入れる
+			body += in_str[0];
+			pos++;
+		}
+	}
+
+//	mNextAddress += body_len + 5;
+	while(area) {
+		if (area & 1) {
+			body += ESC_CODEN;
+			body += wxT('e');
+		}
+		area >>= 1;
+	}
+	out_data.Add(body);
+
 	return true;
 }
 
@@ -1421,8 +2284,13 @@ int Parse::ConvAsciiToUTF8OneLine(size_t row, const wxString &in_line, const wxS
 		// バイト列に変換
 		AscStrToBytes(in_line.Mid(col), val, sizeof(val));
 		if (!through_mode) {
+			// ESC CODEのとき
+			if (memcmp(val, ESC_CODE, 1) == 0) {
+				chrstr = in_line.Mid(col, 2);
+				col += 2;
+			}
 			// キャラクターコードをUTF-8に変換
-			item = mCharCodeTbl.FindByCode(val,_T("<"),false);
+			item = mCharCodeTbl.FindByCode(val,CodeMapItem::ATTR_HIGHER,false);
 			if (item != NULL) {
 				chrstr = item->GetStr();
 				col += item->GetCodeLength();
@@ -1500,7 +2368,6 @@ int Parse::ConvUTF8ToAsciiOneLine(const wxString &in_type, size_t row, const wxS
 	wxCharBuffer vals;
 	size_t vallen;
 	wxString chrstr;
-	long     chr;
 	CodeMapItem *item;
 
 	int error_count = 0;
@@ -1517,11 +2384,10 @@ int Parse::ConvUTF8ToAsciiOneLine(const wxString &in_type, size_t row, const wxS
 				// BOM?
 				col += 3;
 			} else {
-				chr = 0;
 				chrstr.Empty();
 				if (!through_mode) {
 					// UTF-8をキャラクターコードに変換
-					item = mCharCodeTbl.FindByBytes((const wxUint8 *)((const char *)vals+col),_T(">"),false);
+					item = mCharCodeTbl.FindByBytes((const wxUint8 *)((const char *)vals+col),CodeMapItem::ATTR_LOWER,false);
 					if (item != NULL) {
 						switch(item->GetFlags()) {
 						case 1:
@@ -1599,7 +2465,7 @@ PsErrType Parse::LoadCharCodeTable()
 		if (new_code_str.Left(1) == wxT("*")) {
 			// special function
 			if (new_code_str.Left(5) == wxT("*SJIS")) {
-				mCharCodeTbl.AddItem((const wxUint8 *)"SJIS", 4, wxEmptyString, wxEmptyString, 1);
+				mCharCodeTbl.AddItem((const wxUint8 *)"SJIS", 4, wxEmptyString, wxEmptyString, wxEmptyString, 1);
 			}
 
 		} else {
@@ -1682,10 +2548,21 @@ PsErrType Parse::LoadBasicCodeTable()
 		new_str.Trim(true).Trim(false);
 		line = line.Mid(end_pos+1);
 
-		wxString new_attr = line;
+		end_pos = line.Find(wxChar(','));
+		if (end_pos == wxNOT_FOUND) {
+			end_pos = (int)line.Len();
+		}
+		wxString new_attr = line.Left(end_pos);
 		new_attr.Trim(true).Trim(false);
+		line = line.Mid(end_pos+1);
 
-		mBasicCodeTbl.AddItem(new_code, new_code_len, new_str, new_attr);
+		wxString new_attr2 = line;
+		new_attr2.Trim(true).Trim(false);
+		if (new_attr2.Len() == 0) {
+			new_attr2 = new_attr;
+		}
+
+		mBasicCodeTbl.AddItem(new_code, new_code_len, new_str, new_attr, new_attr2);
 	}
 
 	file.Close();

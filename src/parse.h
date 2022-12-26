@@ -17,9 +17,32 @@
 #include "parseresult.h"
 #include "parseparam.h"
 
+/// パーサーに渡す属性
+class ParseAttr
+{
+private:
+	bool mAddSpaceAfterColon;
+
+public:
+	ParseAttr();
+	~ParseAttr();
+
+	bool DoesAddSpaceAfterColon() const { return mAddSpaceAfterColon; }
+	void DoesAddSpaceAfterColon(bool val) { mAddSpaceAfterColon = val; }
+};
+
 /// パーサークラス
 class Parse : public ParseParam
 {
+public:
+	enum enParseAttrs {
+		QUOTED_AREA		= 0x01,
+		DATA_AREA		= 0x02,
+		ALLDATA_AREA	= 0x04,
+		COMMENT_AREA	= 0x08,
+		SENTENCE_AREA	= 0x10,
+	};
+
 private:
 	wxString mAppPath;
 	bool mBigEndian;
@@ -52,6 +75,8 @@ private:
 	wxRegEx reOcta;		///< "^[0-7]+"
 	wxRegEx reHexa;		///< "^[0-9a-fA-F]+"
 	wxRegEx reSpace;		///< "^  +"
+	
+	wxRegEx reVariEnd;	///< [%$!#]
 
 	/// 入力データのフォーマットチェック
 	bool CheckDataFormat(PsFileInputInfo &in_file_info);
@@ -69,18 +94,28 @@ private:
 	bool ReadTapeToRealData(PsFileInput &in_data, PsFileOutput &out_data);
 	/// 中間言語からアスキー形式テキストに変換
 	bool ReadBinaryToAscii(PsFileInput &in_file, PsFileData &out_data, ParseResult *result = NULL);
+	/// 中間言語からアスキー形式色付きテキストに変換
+	bool ReadBinaryToAsciiColored(PsFileInput &in_file, PsFileData &out_data, const ParseAttr &pattr, ParseResult *result = NULL);
 	/// アスキー形式から中間言語に変換
 	bool ParseAsciiToBinary(PsFileData &in_data, PsFileOutput &out_file, ParseResult *result = NULL);
+	/// アスキー形式を解析して色付けする
+	bool ParseAsciiToColored(PsFileData &in_data, PsFileData &out_data, const ParseAttr &pattr, ParseResult *result = NULL);
 	/// 変数文字列を変数文字に変換
 	void ParseVariableString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxUint8 *body, size_t body_size, size_t &body_len, bool &empstr, ParseResult *result = NULL);
+	void ParseVariableString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxString &body, bool &empstr, ParseResult *result = NULL);
 	/// 数値文字列を数値に変換
 	void ParseNumberString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re_real, wxRegEx &re_exp, wxUint8 *body, size_t body_size, size_t &body_len, bool &empstr, ParseResult *result = NULL);
+	void ParseNumberString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re_real, wxRegEx &re_exp, wxString &body, bool &empstr, ParseResult *result = NULL);
 	/// 行番号文字列を数値に変換
 	void ParseLineNumberString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re_int, wxUint8 *body, size_t body_size, size_t &body_len, bool &empstr, ParseResult *result = NULL);
+	void ParseLineNumberString(const wxString &in_data, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re_int, wxString &body, bool &empstr, ParseResult *result = NULL);
 	/// 8進or16進文字列を文字に変換
 	void ParseOctHexString(const wxString &in_data, const wxString &octhexhed, int base, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxUint8 *body, size_t body_size, size_t &body_len, bool &empstr, ParseResult *result = NULL);
+	void ParseOctHexString(const wxString &in_data, const wxString &octhexhed, int base, size_t &pos, int row, long line_number, const wxString &name, wxRegEx &re, wxString &body, bool &empstr, ParseResult *result = NULL);
 	/// アスキー形式1行を中間言語に変換
 	bool ParseAsciiToBinaryOneLine(PsFileType &in_file_type, wxString &in_data, PsFileOutput &out_file, int row = 0, ParseResult *result = NULL);
+	/// アスキー形式1行を解析して色付けする
+	bool ParseAsciiToColoredOneLine(PsFileType &in_file_type, wxString &in_data, PsFileData &out_data, const ParseAttr &pattr, int row = 0, ParseResult *result = NULL);
 	/// アスキー形式テキストを読む
 	int  ReadAsciiText(PsFileInput &in_data, PsFileData &out_data, bool to_utf8 = false);
 	/// アスキー文字列を出力
@@ -125,7 +160,7 @@ public:
 	~Parse();
 	bool Init();
 	/// 指定したファイルを開く
-	bool OpenDataFile(const wxString &in_file_name);
+	bool OpenDataFile(const wxString &in_file_name, PsFileType &file_type);
 	/// ファイルを閉じる
 	void CloseDataFile();
 	/// ファイル開いているか
@@ -154,9 +189,12 @@ public:
 	/// 入力ファイルのBASIC種類を返す
 	wxString &GetOpenedBasicType();
 	/// 入力ファイルの形式を変更して読み直す
-	bool ReloadOpendAsciiData(int type, int mask, const wxString &char_type);
+	bool ReloadOpendAsciiData(int type, int mask, const wxString &char_type, const wxString &basic_type = wxEmptyString);
+//	/// 表示用データの形式を変更して読み直す
+//	bool ReloadParsedAsciiData(int type, int mask, const wxString &char_type, const wxString &basic_type);
 	/// 表示用データの形式を変更して読み直す
-	bool ReloadParsedData(int type, int mask, const wxString &char_type);
+	bool ReloadParsedData(int type, int mask, const wxString &char_type, const wxString &basic_type);
+	bool ReloadParsedData(PsFileType &out_type);
 	/// 中間言語形式データの読み直し
 	bool ReloadOpenedBinaryData(int type, int mask, const wxString &basic_type);
 	/// スタートアドレスのリストへのポインタを返す

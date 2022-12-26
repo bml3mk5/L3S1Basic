@@ -1,5 +1,5 @@
 /* XPM */
-const static char * l3basic_xpm[] = {
+const static char * l3s1basic_xpm[] = {
 "64 64 739 2",
 "  	c None",
 ". 	c #9C9C9C",

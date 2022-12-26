@@ -22,6 +22,10 @@ private:
 	int      mFontSize;
 	wxArrayString mRecentFiles;
 
+	bool	 mAddSpaceAfterColon;
+
+	wxString	mLanguage;			///< 言語
+
 	void SetDefaultFontName();
 public:
 	Config();
@@ -38,11 +42,17 @@ public:
 	void SetFontSize(int val) { mFontSize = val; }
 	wxString &GetFilePath() { return mFilePath; }
 	wxString &GetFontName() { return mFontName; }
+	void DoesAddSpaceAfterColon(bool val) { mAddSpaceAfterColon = val; }
+	const wxString &GetLanguage() const { return mLanguage; }
 	int GetFontSize() { return mFontSize; }
 	void AddRecentFile(const wxString &val);
 	wxString &GetRecentFile();
 	void GetRecentFiles(wxArrayString &vals);
+	bool DoesAddSpaceAfterColon() const { return mAddSpaceAfterColon; }
+	void SetLanguage(const wxString &val) { mLanguage = val; }
 	//@}
 };
+
+extern Config gConfig;
 
 #endif /* _CONFIG_H_ */

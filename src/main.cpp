@@ -4,11 +4,15 @@
 ///
 #include "main.h"
 #include "configbox.h"
+#include "dispsetbox.h"
 #include "fontminibox.h"
 #include "chartypebox.h"
 #include "intnamebox.h"
 #include <wx/cmdline.h>
 #include <wx/filename.h>
+#include <wx/regex.h>
+#include "mymenu.h"
+#include "config.h"
 #include "res/l3s1basic.xpm"
 
 #define L3BASIC_TRANS \
@@ -23,7 +27,7 @@
 
 IMPLEMENT_APP(L3basicApp)
 
-L3basicApp::L3basicApp() : mLocale(wxLANGUAGE_DEFAULT)
+L3basicApp::L3basicApp()
 {
 	frame = NULL;
 }
@@ -31,21 +35,40 @@ L3basicApp::L3basicApp() : mLocale(wxLANGUAGE_DEFAULT)
 bool L3basicApp::OnInit()
 {
 	SetAppPath();
-	SetAppName(_T("l3s1basic"));
-
-	// load ini file
-	mConfig.Load(ini_path + GetAppName() + _T(".ini"));
-
-	// set locale search path and catalog name
-	mLocale.AddCatalogLookupPathPrefix(res_path + _T("lang"));
-	mLocale.AddCatalogLookupPathPrefix(_T("lang"));
-	mLocale.AddCatalog(_T("l3s1basic"));
+	SetAppName(_T(APPLICATION_NAME));
 
 	if (!wxApp::OnInit()) {
 		return false;
 	}
 
-	frame = new L3basicFrame(GetAppName(), wxSize(640, 480) );
+	// load ini file
+	gConfig.Load(ini_path + GetAppName() + _T(".ini"));
+
+	// set locale search path and catalog name
+	wxString locale_name = gConfig.GetLanguage();
+	int lang_num = 0;
+	if (locale_name.IsEmpty()) {
+		lang_num = wxLocale::GetSystemLanguage();
+	} else {
+		const wxLanguageInfo * const lang = wxLocale::FindLanguageInfo(locale_name);
+		if (lang) {
+			lang_num = lang->Language;
+		} else {
+			lang_num = wxLANGUAGE_UNKNOWN;
+		}
+	}
+	if (mLocale.Init(lang_num, wxLOCALE_LOAD_DEFAULT)) {
+		mLocale.AddCatalogLookupPathPrefix(res_path + _T("lang"));
+		mLocale.AddCatalogLookupPathPrefix(_T("lang"));
+		mLocale.AddCatalog(_T(APPLICATION_NAME));
+	}
+	if (mLocale.IsLoaded(_T(APPLICATION_NAME))) {
+		locale_name = mLocale.GetCanonicalName();
+	} else {
+		locale_name = wxT("");
+	}
+
+	frame = new L3basicFrame(GetAppName(), wxSize(720, 600) );
 	frame->Show(true);
 	SetTopWindow(frame);
 
@@ -111,10 +134,17 @@ void L3basicApp::MacOpenFile(const wxString &fileName)
 	}
 }
 
+void L3basicApp::MacOpenFiles(const wxArrayString &fileNames)
+{
+	if (frame) {
+		frame->OpenDataFile(fileNames.Item(0));
+	}
+}
+
 int L3basicApp::OnExit()
 {
 	// save ini file
-	mConfig.Save();
+	gConfig.Save();
 
 	return 0;
 }
@@ -153,9 +183,9 @@ const wxString &L3basicApp::GetResPath()
 	return res_path;
 }
 
-Config *L3basicApp::GetConfig()
+L3basicFrame *L3basicApp::GetFrame()
 {
-	return &mConfig;
+	return frame;
 }
 
 //
@@ -183,37 +213,38 @@ BEGIN_EVENT_TABLE(L3basicFrame, wxFrame)
 	EVT_MENU_RANGE(IDM_RECENT_FILE_0, IDM_RECENT_FILE_0 + MAX_RECENT_FILES - 1, L3basicFrame::OnOpenRecentFile)
 
 	EVT_MENU(IDM_CONFIGURE, L3basicFrame::OnConfigure)
+	EVT_MENU(IDM_DISP_SETTINGS, L3basicFrame::OnDispSettings)
 
 	EVT_MENU_OPEN(L3basicFrame::OnMenuOpen)
 END_EVENT_TABLE()
 
 // 翻訳用
 #define DIALOG_BUTTON_STRING _("OK"),_("Cancel")
-#define APPLE_MENU_STRING _("Hide l3s1basic"),_("Hide Others"),_("Show All"),_("Quit l3s1basic"),_("Services"),_("Preferences…")
+#define APPLE_MENU_STRING _("Hide l3s1basic"),_("Hide Others"),_("Show All"),_("Quit l3s1basic"),_("Services"),_("Preferences…"),_("Window"),_("Minimize"),_("Zoom"),_("Bring All to Front")
 
 L3basicFrame::L3basicFrame(const wxString& title, const wxSize& size)
        : wxFrame(NULL, -1, title, wxDefaultPosition, size)
 {
 	// icon
 #ifdef __WXMSW__
-	SetIcon(wxIcon(_T("l3basic")));
+	SetIcon(wxIcon(_T(APPLICATION_NAME)));
 #elif defined(__WXGTK__) || defined(__WXMOTIF__)
-	SetIcon(wxIcon(l3basic_xpm));
+	SetIcon(wxIcon(APPLICATION_XPMICON_NAME));
 #endif
 	//
 	ps = NULL;
 
 	// menu
-	menuFile = new wxMenu;
-	menuOther = new wxMenu;
-	menuHelp = new wxMenu;
-	wxMenu *smenu;
+	menuFile = new MyMenu;
+	menuOther = new MyMenu;
+	menuHelp = new MyMenu;
+	MyMenu *smenu;
 
 	// file menu
-	menuFile->Append( IDM_OPEN_FILE, _("&Open...") );
+	menuFile->Append( IDM_OPEN_FILE, _("&Open...\tCTRL+O") );
 	menuFile->Append( IDM_CLOSE_FILE, _("&Close") );
 	menuFile->AppendSeparator();
-	smenu = new wxMenu;
+	smenu = new MyMenu;
 	smenu->Append( IDM_EXPORT_BASICBIN, _("&BASIC Intermediate Language...") );
 	smenu->Append( IDM_EXPORT_ASCIITXT, _("&Ascii Text...") );
 	smenu->Append( IDM_EXPORT_UTF8TEXT, _("&UTF-8 Text...") );
@@ -225,30 +256,30 @@ L3basicFrame::L3basicFrame(const wxString& title, const wxSize& size)
 	smenu->Append( IDM_EXPORT_ASCIITXTTAPE, _("Tape Image(&Ascii)...") );
 	menuFile->Append( IDM_EXPORT_FILE, _("&Export To"), smenu );
 	menuFile->AppendSeparator();
-	menuRecentFiles = new wxMenu();
+	menuRecentFiles = new MyMenu();
 	UpdateMenuRecentFiles();
 	menuFile->AppendSubMenu(menuRecentFiles, _("&Reccent Files") );
 	menuFile->AppendSeparator();
-	menuFile->Append( wxID_EXIT, _("E&xit") );
+	menuFile->Append( wxID_EXIT, _("E&xit\tALT+F4") );
 	// other menu
-	menuOther->Append( IDM_CONFIGURE, _("&Configure...") );
+	menuOther->Append( IDM_CONFIGURE, _("&File Settings...") );
+	menuOther->Append( IDM_DISP_SETTINGS, _("&Display Settings...") );
 	// help menu
 	menuHelp->Append( wxID_ABOUT, _("&About...") );
 
 	// menu bar
-	wxMenuBar *menuBar = new wxMenuBar;
+	MyMenuBar *menuBar = new MyMenuBar;
 	menuBar->Append( menuFile, _("&File") );
 	menuBar->Append( menuOther, _("&Other") );
+#if defined(__WXOSX__) && wxCHECK_VERSION(3,1,2)
+	menuBar->Append( new wxMenu, _("&Window") );
+#endif
 	menuBar->Append( menuHelp, _("&Help") );
 
 	SetMenuBar( menuBar );
 
 	// control panel
 	panel = new L3basicPanel(this);
-	// config box
-	cfgbox = new ConfigBox(this, IDD_CONFIGBOX);
-	// char type box
-//	ctypebox = new CharTypeBox(this, IDD_CHARTYPEBOX);
 
 	// drag and drop
 	SetDropTarget(new L3basicFileDropTarget(this));
@@ -257,12 +288,9 @@ L3basicFrame::L3basicFrame(const wxString& title, const wxSize& size)
 L3basicFrame::~L3basicFrame()
 {
 	// save ini file
-	Config *ini = wxGetApp().GetConfig();
-	ini->SetFilePath(file_path);
-	ini->SetParam(ps->GetParam());
+	gConfig.SetFilePath(file_path);
+	gConfig.SetParam(ps->GetParam());
 
-//	delete ctypebox;
-	delete cfgbox;
 	delete ps;
 }
 
@@ -274,9 +302,8 @@ bool L3basicFrame::Init(const wxString &in_file)
 		return false;
 	}
 	// load ini file
-	Config *ini = wxGetApp().GetConfig();
-	file_path = ini->GetFilePath();
-	ps->SetParam(ini->GetParam());
+	file_path = gConfig.GetFilePath();
+	ps->SetParam(gConfig.GetParam());
 
 	// set combo box on panel
 	wxArrayString basic_types;
@@ -285,13 +312,7 @@ bool L3basicFrame::Init(const wxString &in_file)
 	wxArrayString char_types;
 	ps->GetCharTypes(char_types);
 	panel->AddCharType(char_types);
-	panel->Update(NULL);
-
-	// set combo box on configbox
-	int *items;
-	size_t count;
-	items = ps->GetStartAddrsPtr(&count);
-	cfgbox->AddStartAddrItems(items, count);
+	panel->UpdateControls(NULL);
 
 	UpdateMenu();
 
@@ -337,7 +358,11 @@ void L3basicFrame::OnOpenFile(wxCommandEvent& WXUNUSED(event))
 		_("Open file"),
 		file_path,
 		wxEmptyString,
-		_("Supported files (*.bin;*.bas;*.txt;*.dat;*.l3)|*.bin;*.bas;*.txt;*.dat;*.l3|All files (*.*)|*.*"),
+#if defined(__WXMSW__)
+		_("Supported files|*.bin;*.bas;*.txt;*.dat;*.l3|All files|*.*"),
+#else
+		_("Supported files|*.bin;*.BIN;*.bas;*.BAS;*.txt;*.TXT;*.dat;*.DAT;*.l3;*.L3|All files|*.*"),
+#endif
 		wxFD_OPEN);
 
 	int rc = dlg->ShowModal();
@@ -376,11 +401,29 @@ void L3basicFrame::OnOpenRecentFile(wxCommandEvent& event)
 /// 設定ダイアログ
 void L3basicFrame::OnConfigure(wxCommandEvent& WXUNUSED(event))
 {
-	cfgbox->SetParam(ps->GetParam());
+	ConfigBox cfgbox(this, wxID_ANY);
 
-	cfgbox->ShowModal();
+	// set combo box on configbox
+	int *items;
+	size_t count;
+	items = ps->GetStartAddrsPtr(&count);
+	cfgbox.AddStartAddrItems(items, count);
 
-	ps->SetParam(cfgbox->GetParam());
+	cfgbox.SetParam(ps->GetParam());
+
+	if (cfgbox.ShowModal() == wxID_OK) {
+		ps->SetParam(cfgbox.GetParam());
+	}
+}
+
+/// 表示設定ダイアログ
+void L3basicFrame::OnDispSettings(wxCommandEvent& WXUNUSED(event))
+{
+	DisplaySettingBox dispbox(this, wxID_ANY);
+
+	if (dispbox.ShowModal() == wxID_OK) {
+		ReloadData();
+	}
 }
 
 /// メニューの更新
@@ -404,8 +447,7 @@ void L3basicFrame::UpdateMenuRecentFiles()
 {
 	// メニューを更新
 	wxArrayString names;
-	Config *ini = wxGetApp().GetConfig();
-	ini->GetRecentFiles(names);
+	gConfig.GetRecentFiles(names);
 	for(int i=0; i<MAX_RECENT_FILES && i<(int)names.Count(); i++) {
 		if (menuRecentFiles->FindItem(IDM_RECENT_FILE_0 + i)) menuRecentFiles->Delete(IDM_RECENT_FILE_0 + i);
 		menuRecentFiles->Append(IDM_RECENT_FILE_0 + i, names[i]);
@@ -423,7 +465,11 @@ void L3basicFrame::OpenDataFile(const wxString &path)
 	panel->SetTextInfo(_("Now Processing..."));
 	Update();
 
-	if (!ps->OpenDataFile(path)) {
+	wxString basic_type = panel->GetBasicType(1);
+	PsFileType file_type;
+	file_type.SetBasicType(basic_type);
+
+	if (!ps->OpenDataFile(path, file_type)) {
 		panel->SetTextInfo(wxEmptyString);
 		return;
 	}
@@ -437,18 +483,17 @@ void L3basicFrame::OpenDataFile(const wxString &path)
 	PsFileType *opened_flags = ps->GetOpenedDataTypePtr();
 	opened_flags->SetInternalName(wxFileName::FileName(path).GetName());	
 
-	panel->Update(opened_flags);
+	panel->UpdateControls(opened_flags);
 	panel->SetBasicType(0, ps->GetOpenedBasicType());
 	panel->SetBasicType(1, ps->GetOpenedBasicType());
-//	panel->GetTextName()->SetValue(path);
+	panel->SetBasicType(2, ps->GetOpenedBasicType());
 
 	wxArrayString lines;
 	wxString char_type = ps->GetParsedData(lines);
 	panel->SetCharType(2, char_type);
 	panel->SetTextInfo(char_type, lines);
 
-	Config *ini = wxGetApp().GetConfig();
-	ini->AddRecentFile(path);
+	gConfig.AddRecentFile(path);
 	UpdateMenuRecentFiles();
 }
 
@@ -465,8 +510,7 @@ void L3basicFrame::CloseDataFile()
 	UpdateMenu();
 
 	// update panel
-	panel->Update(NULL);
-//	panel->GetTextName()->SetValue(wxT(""));
+	panel->UpdateControls(NULL);
 }
 
 /// エクスポート
@@ -534,9 +578,6 @@ void L3basicFrame::ExportFile(int id)
 			wild_card = _("TEXT File (*.txt)|*.txt|All Files (*.*)|*.*");
 			file_type.SetTypeFlag(psAscii | psUTF8, true);
 			file_type.SetCharType(panel->GetCharType(2));
-			// show char type box
-//			rc = ctypebox->ShowModal();
-//			file_type.SetCharType(ctypebox->GetCharType());
 			break;
 		default:
 			file_base += _T("");
@@ -559,7 +600,7 @@ void L3basicFrame::ExportFile(int id)
 	delete dlg;
 
 	if (rc == wxID_OK) {
-		wxString basic_type = panel->GetBasicType(1);
+		wxString basic_type = panel->GetBasicType(2);
 		file_type.SetBasicType(basic_type);
 		if (!ps->OpenOutFile(path, file_type)) {
 			return;
@@ -598,16 +639,32 @@ void L3basicFrame::ReloadOpendData(int type, int mask, const wxString &char_type
 		panel->SetTextInfo(nchar_type, nlines);
 	}
 }
-
+#if 0
 /// ファイルを読み直す
-void L3basicFrame::ReloadParsedData(int type, int mask, const wxString &char_type)
+void L3basicFrame::ReloadParsedAsciiData(int type, int mask, const wxString &char_type, const wxString &basic_type)
 {
 	if (ps == NULL) return;
-	if (ps->ReloadParsedData(type, mask, char_type)) {
+	if (ps->ReloadParsedAsciiData(type, mask, char_type, basic_type)) {
 		wxArrayString nlines;
 		wxString nchar_type = ps->GetParsedData(nlines);
 		panel->SetTextInfo(nchar_type, nlines);
 	}
+}
+#endif
+/// ファイルを読み直す
+void L3basicFrame::ReloadParsedData(int type, int mask, const wxString &char_type, const wxString &basic_type)
+{
+	if (ps == NULL) return;
+	if (ps->ReloadParsedData(type, mask, char_type, basic_type)) {
+		wxArrayString nlines;
+		wxString nchar_type = ps->GetParsedData(nlines);
+		panel->SetTextInfo(nchar_type, nlines);
+	}
+}
+/// 再表示
+void L3basicFrame::ReloadData()
+{
+	ReloadParsedData(0, 0, wxEmptyString);
 }
 
 //
@@ -625,6 +682,7 @@ BEGIN_EVENT_TABLE(L3basicPanel, wxPanel)
 
 	EVT_COMBOBOX(IDC_COMBO_CHARTYPE_I, L3basicPanel::OnSelectCharTypeI)
 
+	EVT_COMBOBOX(IDC_COMBO_DBASICTYPE, L3basicPanel::OnSelectDBasicType)
 	EVT_COMBOBOX(IDC_COMBO_DCHARTYPE, L3basicPanel::OnSelectDCharType)
 
 	EVT_BUTTON(IDC_BUTTON_FONT, L3basicPanel::OnClickFont)
@@ -637,7 +695,6 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
        : wxPanel(parent)
 {
 	frame    = parent;
-//	textName = NULL;
 	textInfo = NULL;
 
 	wxSize  frame_size = parent->GetClientSize();
@@ -648,9 +705,8 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	wxBoxSizer *hbox, *hboxa, *hboxb;
 	wxBoxSizer *vbox, *vboxa, *vboxb;
 	wxSize size;
-//	size.x = DEFAULT_TEXTWIDTH; size.y = -1;
 	size.x = -1; size.y = -1;
-	wxString dummystr = wxT("wwwwwwwwwwwwwwww");
+	wxString dummystr = wxT("wwwwwwwwwwww");
 
 	szrAll = new wxBoxSizer(wxVERTICAL);
 
@@ -659,27 +715,23 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	// 入力ファイル情報
 	vbox = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Input File Information")), wxVERTICAL);
 
-//	style = wxTE_READONLY;
-//	textName = new wxTextCtrl(this, IDC_TEXT_NAME, wxEmptyString, wxDefaultPosition, wxDefaultSize, style);
-//	vbox->Add(textName, flagsW);
-
-	radBinaryI   = new wxRadioButton(this, IDC_RADIO_BINARY_I, _("BASIC Intermediate Language"), wxDefaultPosition, wxDefaultSize, wxRB_SINGLE | wxRB_GROUP);
+	radBinaryI   = new wxRadioButton(this, IDC_RADIO_BINARY_I, _("BASIC Intermediate Language"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
 	vbox->Add(radBinaryI, flagsW);
 
 	hboxb = new wxBoxSizer(wxHORIZONTAL);
-	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("    ")), flagsW);
+	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("        ")), flagsW);
 	hboxb->Add(new wxStaticText(this, wxID_ANY, _("BASIC Type")), flagsW);
 	comBasicTypeI = new wxComboBox(this, IDC_COMBO_BASICTYPE_I, _T(""), wxDefaultPosition, size, 1, &dummystr, wxCB_DROPDOWN | wxCB_READONLY);
 	hboxb->Add(comBasicTypeI, flagsW);
 	vbox->Add(hboxb, 0);
 
-	radAsciiI = new wxRadioButton(this, IDC_RADIO_ASCII_I, _("Ascii Text"), wxDefaultPosition, wxDefaultSize, wxRB_SINGLE);
-	radUTF8I  = new wxRadioButton(this, IDC_RADIO_UTF8_I , _("UTF-8 Text"), wxDefaultPosition, wxDefaultSize, wxRB_SINGLE);
+	radAsciiI = new wxRadioButton(this, IDC_RADIO_ASCII_I, _("Ascii Text"), wxDefaultPosition, wxDefaultSize, 0);
+	radUTF8I  = new wxRadioButton(this, IDC_RADIO_UTF8_I , _("UTF-8 Text"), wxDefaultPosition, wxDefaultSize, 0);
 	vbox->Add(radAsciiI, flagsW);
 	vbox->Add(radUTF8I, flagsW);
 
 	hboxb = new wxBoxSizer(wxHORIZONTAL);
-	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("    ")), flagsW);
+	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("        ")), flagsW);
 	hboxb->Add(new wxStaticText(this, wxID_ANY, _("Text Type")), flagsW);
 	comCharTypeI = new wxComboBox(this, IDC_COMBO_CHARTYPE_I, _T(""), wxDefaultPosition, size, 1, &dummystr, wxCB_DROPDOWN | wxCB_READONLY);
 	hboxb->Add(comCharTypeI, flagsW);
@@ -692,7 +744,7 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	vbox->Add(new wxStaticText(this, wxID_ANY, _T("")), flagsW);
 	vbox->Add(new wxStaticText(this, wxID_ANY, _T("")), flagsW);
 	vbox->Add(new wxStaticText(this, wxID_ANY, _T("")), flagsW);
-	vbox->Add(new wxStaticText(this, wxID_ANY, _T("->")), flagsW);
+	vbox->Add(new wxStaticText(this, wxID_ANY, _T("--->")), flagsW);
 	hbox->Add(vbox, flagsW);
 
 	// 出力ファイル情報
@@ -708,7 +760,7 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	vbox->Add(hboxb, 0);
 
 	hboxb = new wxBoxSizer(wxHORIZONTAL);
-	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("    ")), flagsW);
+	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("        ")), flagsW);
 	hboxb->Add(new wxStaticText(this, wxID_ANY, _("BASIC Type")), flagsW);
 	comBasicTypeO = new wxComboBox(this, IDC_COMBO_BASICTYPE_O, _T(""), wxDefaultPosition, size, 1, &dummystr, wxCB_DROPDOWN | wxCB_READONLY);
 	hboxb->Add(comBasicTypeO, flagsW);
@@ -730,7 +782,7 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	vboxa->Add(radUTF8O, flagsW);
 
 	hboxb = new wxBoxSizer(wxHORIZONTAL);
-	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("    ")), flagsW);
+	hboxb->Add(new wxStaticText(this, wxID_ANY, _T("        ")), flagsW);
 	hboxb->Add(new wxStaticText(this, wxID_ANY, _("Text Type")), flagsW);
 	comCharTypeO = new wxComboBox(this, IDC_COMBO_CHARTYPE_O, _T(""), wxDefaultPosition, size, 1, &dummystr, wxCB_DROPDOWN | wxCB_READONLY);
 	hboxb->Add(comCharTypeO, flagsW);
@@ -739,8 +791,12 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	hboxa->Add(vboxa, 0);
 
 	// export button
-	btnExport = new wxButton(this, IDC_BUTTON_EXPORT, _("Export"), wxDefaultPosition, size, 0);
-	hboxa->Add(btnExport, flagsW);
+	vboxa = new wxBoxSizer(wxVERTICAL);
+
+	wxSize size_btn(-1, 48);
+	btnExport = new wxButton(this, IDC_BUTTON_EXPORT, _("Export"), wxDefaultPosition, size_btn, 0);
+	vboxa->Add(btnExport, wxSizerFlags().Border(wxLEFT | wxRIGHT, 16));
+	hboxa->Add(vboxa, 0);
 
 	vbox->Add(hboxa, 0);
 	hbox->Add(vbox, flagsW);
@@ -751,12 +807,15 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	vboxb = new wxBoxSizer(wxVERTICAL);
 	hbox = new wxBoxSizer(wxHORIZONTAL);
 	hbox->Add(new wxStaticText(this, wxID_ANY, _("Display Type")), flagsW);
+	comDBasicType = new wxComboBox(this, IDC_COMBO_DBASICTYPE, _T(""), wxDefaultPosition, size, 1, &dummystr, wxCB_DROPDOWN | wxCB_READONLY);
+	hbox->Add(comDBasicType, flagsW);
+	hbox->Add(new wxStaticText(this, wxID_ANY, _T("  ")), flagsW);
 	comDCharType = new wxComboBox(this, IDC_COMBO_DCHARTYPE, _T(""), wxDefaultPosition, size, 1, &dummystr, wxCB_DROPDOWN | wxCB_READONLY);
 	hbox->Add(comDCharType, flagsW);
 	hbox->Add(new wxStaticText(this, wxID_ANY, _T("  ")), flagsW);
 	hbox->Add(new wxStaticText(this, wxID_ANY, _("Font")), flagsW);
 	style = wxTE_READONLY;
-	size.x = DEFAULT_TEXTWIDTH * 2;
+	size.x = DEFAULT_TEXTWIDTH * 1.5;
 	textFont = new wxTextCtrl(this, IDC_TEXT_FONT, wxEmptyString, wxDefaultPosition, size, style);
 	btnFont = new wxButton(this, IDC_BUTTON_FONT, _("Change"));
 	hbox->Add(textFont, flagsW);
@@ -766,9 +825,8 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	szrAll->Add(vboxb, flagsM);
 
 	wxBoxSizer *vboxc = new wxBoxSizer(wxVERTICAL);
-	style = wxTE_READONLY | wxTE_MULTILINE;
 	size.x = frame_size.x; size.y = -1;
-	textInfo = new wxTextCtrl(this, IDC_TEXT_INFO, wxEmptyString, wxDefaultPosition, size, style);
+	textInfo = new MyTextCtrl(this, IDC_TEXT_INFO, wxEmptyString, wxDefaultPosition, size);
 	hbox = new wxBoxSizer(wxHORIZONTAL);
 	hbox->Add(textInfo, flagsM);
 	vboxc->Add(hbox, flagsM);
@@ -790,14 +848,16 @@ L3basicPanel::L3basicPanel(L3basicFrame *parent)
 	SetInitialFont();
 	SetTextFontName();
 	textInfo->SetFont(fontFixed);
+
+	// drop target
+	textInfo->SetDropTarget(new L3basicFileDropTarget(frame));
 }
 
 L3basicPanel::~L3basicPanel()
 {
 	// save ini file
-	Config *ini = wxGetApp().GetConfig();
-	ini->SetFontName(mFontName);
-	ini->SetFontSize(mFontSize);
+	gConfig.SetFontName(mFontName);
+	gConfig.SetFontSize(mFontSize);
 }
 
 /// リサイズ
@@ -805,7 +865,6 @@ void L3basicPanel::OnSize(wxSizeEvent& event)
 {
 	wxSize size = event.GetSize();
 
-//	if (textName) textName->SetSize(size.x, -1);
 	if (textInfo) textInfo->SetSize(size.x, size.y - textInfo->GetPosition().y);
 }
 
@@ -817,35 +876,34 @@ void L3basicPanel::OnSelectBasicTypeI(wxCommandEvent& event)
 /// BASIC中間言語ラジオボタン選択
 void L3basicPanel::OnSelectBinaryI(wxCommandEvent& event)
 {
-	radAsciiI->SetValue(false);
-	radUTF8I->SetValue(false);
 	frame->ReloadBinaryData(psBinary, psAscii, GetBasicType(0));
 }
 /// Asciiラジオボタン選択
 void L3basicPanel::OnSelectAsciiI(wxCommandEvent& event)
 {
-	radBinaryI->SetValue(false);
-	radUTF8I->SetValue(false);
 	frame->ReloadOpendData(psAscii, psUTF8, _T(""));
 }
 /// UTF8ラジオボタン選択
 void L3basicPanel::OnSelectUTF8I(wxCommandEvent& event)
 {
-	radBinaryI->SetValue(false);
-	radAsciiI->SetValue(false);
 	frame->ReloadOpendData(psAscii | psUTF8, 0, GetCharType(0));
 }
 /// 文字種類選択
 void L3basicPanel::OnSelectCharTypeI(wxCommandEvent& event)
 {
-	radBinaryI->SetValue(false);
-	radAsciiI->SetValue(false);
 	radUTF8I->SetValue(true);
 	frame->ReloadOpendData(psAscii | psUTF8, 0, GetCharType(0));
+}
+/// 表示するBASIC種類選択
+void L3basicPanel::OnSelectDBasicType(wxCommandEvent& event)
+{
+	comBasicTypeO->SetSelection(comDBasicType->GetSelection());
+	frame->ReloadParsedData(0, 0, GetCharType(1), GetBasicType(1));
 }
 /// 表示する文字種類選択
 void L3basicPanel::OnSelectDCharType(wxCommandEvent& event)
 {
+	comCharTypeO->SetSelection(comDCharType->GetSelection());
 	frame->ReloadParsedData(psAscii | psUTF8, 0, GetCharType(1));
 }
 /// フォントボタン選択
@@ -915,14 +973,12 @@ void L3basicPanel::OnClickExport(wxCommandEvent& event)
 }
 
 /// コントロールを更新
-void L3basicPanel::Update(PsFileType *file_type)
+void L3basicPanel::UpdateControls(PsFileType *file_type)
 {
 	radBinaryI->Enable(false);
 	radAsciiI->Enable(false);
 	radUTF8I->Enable(false);
-	radBinaryI->SetValue(false);
-	radAsciiI->SetValue(false);
-	radUTF8I->SetValue(false);
+	radBinaryI->SetValue(true);
 	comBasicTypeI->Enable(false);
 	comCharTypeI->Enable(false);
 	btnExport->Enable(false);
@@ -957,13 +1013,16 @@ void L3basicPanel::AddBasicType(const wxArrayString &items)
 	mOrigBasicTypes.Empty();
 	comBasicTypeI->Clear();
 	comBasicTypeO->Clear();
+	comDBasicType->Clear();
 	for(size_t i=0; i<items.GetCount(); i++) {
 		mOrigBasicTypes.Add(items[i]);
 		comBasicTypeI->Insert(wxGetTranslation(items[i]), (int)i);
 		comBasicTypeO->Insert(wxGetTranslation(items[i]), (int)i);
+		comDBasicType->Insert(wxGetTranslation(items[i]), (int)i);
 	}
 	comBasicTypeI->Select(0);
 	comBasicTypeO->Select(0);
+	comDBasicType->Select(0);
 }
 /// Basic type を返す
 int L3basicPanel::GetBasicTypeNum(int n)
@@ -972,6 +1031,9 @@ int L3basicPanel::GetBasicTypeNum(int n)
 	wxComboBox *cb;
 	switch(n) {
 	case 1:
+		cb = comDBasicType;
+		break;
+	case 2:
 		cb = comBasicTypeO;
 		break;
 	default:
@@ -1001,6 +1063,9 @@ void L3basicPanel::SetBasicType(int n, int pos)
 
 	switch(n) {
 	case 1:
+		comDBasicType->Select(pos);
+		break;
+	case 2:
 		comBasicTypeO->Select(pos);
 		break;
 	default:
@@ -1096,18 +1161,12 @@ void L3basicPanel::SetTextInfo(const wxString &str)
 void L3basicPanel::SetTextInfo(const wxString &char_type, const wxString &str)
 {
 	SetCharType(1, char_type);
-	textInfo->SetValue(str);
+	textInfo->SetLine(str);
 }
 void L3basicPanel::SetTextInfo(const wxString &char_type, const wxArrayString &lines)
 {
 	SetCharType(1, char_type);
-
-	wxString str;
-
-	for(size_t i=0; i<lines.GetCount(); i++) {
-		str += lines[i] + _T("\n");
-	}
-	textInfo->SetValue(str);
+	textInfo->SetLines(lines);
 }
 /// フォント名を表示
 void L3basicPanel::SetTextFontName()
@@ -1122,9 +1181,8 @@ void L3basicPanel::SetTextFontName()
 void L3basicPanel::SetInitialFont()
 {
 	// load ini file
-	Config *ini = wxGetApp().GetConfig();
-	mFontName = ini->GetFontName();
-	mFontSize = ini->GetFontSize();
+	mFontName = gConfig.GetFontName();
+	mFontSize = gConfig.GetFontSize();
 
 	if (mFontName.IsEmpty()) {
 		fontFixed = textInfo->GetFont();
@@ -1177,11 +1235,12 @@ L3basicAbout::L3basicAbout(wxWindow* parent, wxWindowID id)
 	wxBoxSizer *szrAll    = new wxBoxSizer(wxVERTICAL);
 
 	szrLeft->Add(new wxStaticBitmap(this, wxID_ANY,
-		wxBitmap(l3basic_xpm), wxDefaultPosition, wxSize(64, 64))
+		wxBitmap(l3s1basic_xpm), wxDefaultPosition, wxSize(64, 64))
 		, flags);
 
 	wxString str = _T("");
-	str += _T("L3S1basic, Version ");
+	str += _T(APPLICATION_FULLNAME);
+	str += _T(", Version ");
 	str += _T(APPLICATION_VERSION);
 	str += _T(" \"");
 	str += _T(PLATFORM);

@@ -1,7 +1,7 @@
 # L3-BASIC & S1-BASIC コード変換テーブル
 # 
 # 書式:
-# <中間言語コード>,<BASICステートメント>,<属性>
+# <中間言語コード>,<BASICステートメント>,<属性>,<表示用属性>
 #
 # 属性:
 # data    : これ以降コロンまでDATA文としてそのまま出力
@@ -19,6 +19,12 @@
 #
 #
 [L3 ROM BASIC]
+264F, &O	,			,octstring
+266F, &O	,			,octstring
+2648, &H	,			,hexstring
+2668, &H	,			,hexstring
+26,   &		,			,octstring
+#
 80, END
 81, FOR
 82, NEXT
@@ -26,15 +32,15 @@
 84, DIM
 85, READ
 86, LET
-87, GO
-88, RUN
+87, GO		,			,linenumber
+88, RUN		,			,linenumber
 89, IF
-8A, RESTORE
-8B, RETURN
+8A, RESTORE	,			,linenumber
+8B, RETURN	,			,linenumber
 8C, REM		,comment
 8D, '		,comment colon
 8E, STOP
-8F, ELSE	,colon
+8F, ELSE	,colon			,colon linenumber
 90, TRON
 91, TROFF
 92, SWAP
@@ -43,16 +49,16 @@
 95, DEFSNG
 96, DEFDBL
 97, ON
-98, WAIT
-99, RENUM
-9A, EDIT
+98, WAIT	,			,contonelinenumber
+99, RENUM	,			,linenumber
+9A, EDIT	,			,linenumber
 9B, ERROR
-9C, RESUME
-9D, AUTO
+9C, RESUME	,			,linenumber
+9D, AUTO	,			,linenumber
 9E, DELETE
 9F, TERM
 A0, WIDTH
-A1, UNLIST
+A1, UNLIST	,			,linenumber
 A2, MON
 A3, LOCATE
 A4, CLS
@@ -61,7 +67,10 @@ A6, PSET
 A7, PRESET
 A8, MOTOR
 A9, SKIPF
+AA4D, SAVEM
 AA, SAVE
+AB3F, LOAD?
+AB4D, LOADM
 AB, LOAD
 AC, MERGE
 AD, EXEC
@@ -73,20 +82,21 @@ B2, KEY
 B3, PAINT
 B4, BEEP
 B5, COLOR
+B640, LINE@
 B6, LINE
 B7, DEF
 B8, POKE
 B9, PRINT
-BA, CONT
-BB, LIST
+BA, CONT	,			,linenumber
+BB, LIST	,			,linenumber
 BC, CLEAR
 BD, RANDOMIZE
 BE, WHILE
 BF, WEND
 C0, NEW
 C1, TAB(
-C2, TO
-C3, SUB
+C2, TO		,			,contlinenumber
+C3, SUB		,			,contlinenumber
 C4, FN
 C5, SPC(
 C6, USING
@@ -94,7 +104,7 @@ C7, USR
 C8, ERL
 C9, ERR
 CA, OFF
-CB, THEN
+CB, THEN	,			,linenumber
 CC, NOT
 CD, STEP
 CE, +
@@ -179,10 +189,13 @@ FFA1, VARPTR
 FFA2, STRING$
 FFA3, RND
 FFA4, INKEY$
-FFA5, INPUT
+FFA524, INPUT$
+FFA5, INPUT	,			,linenumber
 FFA6, CSRLIN
 FFA7, POINT
+FFA824, TIME$
 FFA8, TIME
+FFA924, DATE$
 FFA9, DATE
 #
 # for DISK BASIC 3inch
@@ -261,7 +274,10 @@ A6, PSET
 A7, PRESET
 A8, MOTOR
 A9, SKIPF
+AA4D, SAVEM
 AA, SAVE
+AB3F, LOAD?
+AB4D, LOADM
 AB, LOAD
 AC, MERGE
 AD, EXEC
@@ -320,13 +336,18 @@ E1, =
 E2, <
 E3, LCOPY
 E4, GCURSOR
+E54043, GET@C
+E540, GET@
 E5, GET
 E6, IG$
 E7, IMAGE
+E840, KANJI@
 E8, KANJI
 E9, PAINT
 EA, PALETTE
 EB, PLAY
+EC4043, PUT@C
+EC40, PUT@
 EC, PUT
 ED, SOUND
 EE, SYMBOL
@@ -394,7 +415,9 @@ FFA4, INKEY$
 FFA524, INPUT$
 FFA5, INPUT	,linenumber
 FFA6, CSRLIN
+FFA724, TIME$
 FFA7, TIME
+FFA824, DATE$
 FFA8, DATE
 FFA9, MKI$
 FFAA, MKS$

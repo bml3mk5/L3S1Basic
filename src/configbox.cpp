@@ -1,15 +1,19 @@
 ﻿/// @file configbox.cpp
 ///
-/// @brief 設定ダイアログ
+/// @brief 入出力設定ダイアログ
 ///
 #include "configbox.h"
+#include <wx/statline.h>
+#include <wx/colordlg.h>
+#include "main.h"
+#include "config.h"
 
 // Attach Event
 BEGIN_EVENT_TABLE(ConfigBox, wxDialog)
 END_EVENT_TABLE()
 
 ConfigBox::ConfigBox(wxWindow* parent, wxWindowID id)
-	: wxDialog(parent, id, _("Configure"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE)
+	: wxDialog(parent, id, _("File Settings"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE)
 	, ParseParam()
 {
 	wxSizerFlags flags = wxSizerFlags().Expand().Border(wxALL, 4);
@@ -17,6 +21,9 @@ ConfigBox::ConfigBox(wxWindow* parent, wxWindowID id)
 	wxBoxSizer *szrAll = new wxBoxSizer(wxVERTICAL);
 	wxGridSizer *gszr;
 	wxBoxSizer *hbox;
+
+	// --------------------
+	// Input file
 
 	wxBoxSizer *vboxNL = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Input File")), wxVERTICAL);
 	gszr = new wxFlexGridSizer(1, 2, 0, 0);
@@ -27,8 +34,10 @@ ConfigBox::ConfigBox(wxWindow* parent, wxWindowID id)
 
 	vboxNL->Add(gszr, flags);
 
-	szrAll->Add(vboxNL);
+	szrAll->Add(vboxNL, flags);
 
+	// --------------------
+	// Output file
 
 	vboxNL = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _("Output File")), wxVERTICAL);
 	gszr = new wxFlexGridSizer(6, 2, 0, 0);
@@ -70,7 +79,9 @@ ConfigBox::ConfigBox(wxWindow* parent, wxWindowID id)
 	gszr->Add(comStartAddr, flags);
 	vboxNL->Add(gszr, flags);
 
-	szrAll->Add(vboxNL);
+	szrAll->Add(vboxNL, flags);
+
+	// OK and Cancel Buttons
 
 	wxSizer *szrButtons = CreateButtonSizer(wxOK|wxCANCEL);
 	szrAll->Add(szrButtons, flags);

@@ -1,34 +1,37 @@
 #
-# for Windows + MinGW + MSYS
+# for Windows + MSYS2 + MinGW
 #
 CC=g++
 
 CDEFS=
 DBG_CDEFS=-D_DEBUG -D_DEBUG_LOG
 
+
 #ARCH=-m32
 #ARCH=-m64
 
-WXDIR=/D/Devel/sources/wxWidgets-3.0.2
-WXCONFIG_SH=$(WXDIR)/build_release_shared_unicode/wx-config
-WXCONFIG_ST=$(WXDIR)/build_release_static_unicode/wx-config
-WXCONFIG_DBG=$(WXDIR)/build_debug_static_unicode/wx-config
+WXDIR=/D/Devel/sources/wxWidgets-3.1.2
+WXCONFIG_SH=wx-config
+WXCONFIG_ST=$(WXDIR)/build_release_static_unicode_x64/wx-config
+WXCONFIG_DBG=$(WXDIR)/build_debug_static_unicode_x64/wx-config
 
-SH_CFLAGS=$(ARCH) -Wall -O2 $(shell $(WXCONFIG_SH) --cppflags)
-ST_CFLAGS=$(ARCH) -Wall -O2 $(shell $(WXCONFIG_ST) --cppflags)
-DBG_CFLAGS=$(ARCH) -g -Wall -O0 $(shell $(WXCONFIG_DBG) --cppflags)
+SH_INCLUDES=$(shell $(WXCONFIG_SH) --cppflags all)
+ST_INCLUDES=$(shell $(WXCONFIG_ST) --cppflags all)
+DBG_INCLUDES=$(shell $(WXCONFIG_DBG) --cppflags all)
+
+SH_CFLAGS=$(ARCH) -Wall -O2 $(SH_INCLUDES)
+ST_CFLAGS=$(ARCH) -Wall -O2 $(ST_INCLUDES)
+DBG_CFLAGS=$(ARCH) -g -Wall -O0 $(DBG_INCLUDES)
 
 LD=g++
 
-LOCALLIBDIR=/usr/local/lib
-
-SH_LDFLAGS=$(shell $(WXCONFIG_SH) --libs)
-ST_LDFLAGS=-static $(shell $(WXCONFIG_ST) --libs)
-DBG_LDFLAGS=-static $(shell $(WXCONFIG_DBG) --libs)
+SH_LDFLAGS=$(shell $(WXCONFIG_SH) --libs all)
+ST_LDFLAGS=-static $(shell $(WXCONFIG_ST) --libs all --static)
+DBG_LDFLAGS=-static $(shell $(WXCONFIG_DBG) --libs all --static)
 
 EXEFILE=l3s1basic.exe
 
-BUILDDIR=./build
+BUILDDIR=./build_msys2
 SH_BUILDDIR=$(BUILDDIR)/shared
 ST_BUILDDIR=$(BUILDDIR)/static
 DBG_BUILDDIR=$(BUILDDIR)/debug
@@ -44,24 +47,28 @@ SRCLANG=$(LANGDIR)/
 DATADIR=data
 SRCDATA=$(DATADIR)/
 
-OBJS=errorinfo.o \
-	bsstream.o \
-	uint192.o \
-	decistr.o \
-	l3float.o \
-	fileinfo.o \
-	maptable.o \
-	parse.o \
-	parsetape.o \
-	parseresult.o \
-	config.o \
-	configbox.o \
-	fontminibox.o \
-	chartypebox.o \
-	intnamebox.o \
-	main.o
+OBJS=$(SRCDIR)/errorinfo.o \
+	$(SRCDIR)/bsstream.o \
+	$(SRCDIR)/uint192.o \
+	$(SRCDIR)/decistr.o \
+	$(SRCDIR)/l3float.o \
+	$(SRCDIR)/fileinfo.o \
+	$(SRCDIR)/maptable.o \
+	$(SRCDIR)/parse.o \
+	$(SRCDIR)/parsetape.o \
+	$(SRCDIR)/parseresult.o \
+	$(SRCDIR)/config.o \
+	$(SRCDIR)/configbox.o \
+	$(SRCDIR)/dispsetbox.o \
+	$(SRCDIR)/fontminibox.o \
+	$(SRCDIR)/chartypebox.o \
+	$(SRCDIR)/intnamebox.o \
+	$(SRCDIR)/mytextctrl.o \
+	$(SRCDIR)/mymenu.o \
+	$(SRCDIR)/colortag.o \
+	$(SRCDIR)/main.o
 
-RESOBJS=l3s1basic.res
+RESOBJS=$(SRCDIR)/l3s1basic.res
 
 EXE =$(BUILDDIR)/$(EXEFILE)
 SH_EXE=$(SH_BUILDDIR)/$(EXEFILE)
@@ -104,26 +111,26 @@ $(ST_EXE): st_depend $(ST_OBJS)
 $(DBG_EXE): dbg_depend $(DBG_OBJS)
 	$(LD) -o $@ $(DBG_OBJS) $(DBG_LIBS) $(DBG_LDFLAGS)
 
-$(SH_BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+$(SH_BUILDDIR)/%.o: %.cpp
 	$(CC) $(CDEFS) $(SH_CFLAGS) -c $< -o $@
 
-$(ST_BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+$(ST_BUILDDIR)/%.o: %.cpp
 	$(CC) $(CDEFS) $(ST_CFLAGS) -c $< -o $@
 
-$(DBG_BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+$(DBG_BUILDDIR)/%.o: %.cpp
 	$(CC) $(DBG_CDEFS) $(DBG_CFLAGS) -c $< -o $@
 
-# $(SRCDIR)/%_tmp.cpp: $(SRCDIR)/%.cpp
+# $(SRCDIR)/%_tmp.cpp: %.cpp
 #	sed '1 s/^...//' $< > $@
 
-$(SH_BUILDDIR)/%.res: $(SRCDIR)/%.rc
-	$(WINDRES) $< -I$(WXDIR)/include -O coff -o $@
+$(SH_BUILDDIR)/%.res: %.rc
+	$(WINDRES) $< $(SH_INCLUDES) -O coff -o $@
 
-$(ST_BUILDDIR)/%.res: $(SRCDIR)/%.rc
-	$(WINDRES) $< -I$(WXDIR)/include -O coff -o $@
+$(ST_BUILDDIR)/%.res: %.rc
+	$(WINDRES) $< $(ST_INCLUDES) -O coff -o $@
 
-$(DBG_BUILDDIR)/%.res: $(SRCDIR)/%.rc
-	$(WINDRES) $< -I$(WXDIR)/include -O coff -o $@
+$(DBG_BUILDDIR)/%.res: %.rc
+	$(WINDRES) $< $(DBG_INCLUDES) -O coff -o $@
 
 install: sh_install
 
@@ -152,16 +159,16 @@ dbg_install: dbg_exe
 	fi; done
 
 mk_builddir:
-	mkdir -p $(BUILDDIR)
+	mkdir -p $(BUILDDIR)/$(SRCDIR)
 
 mk_sh_builddir:
-	mkdir -p $(SH_BUILDDIR)
+	mkdir -p $(SH_BUILDDIR)/$(SRCDIR)
 
 mk_st_builddir:
-	mkdir -p $(ST_BUILDDIR)
+	mkdir -p $(ST_BUILDDIR)/$(SRCDIR)
 
 mk_dbg_builddir:
-	mkdir -p $(DBG_BUILDDIR)
+	mkdir -p $(DBG_BUILDDIR)/$(SRCDIR)
 
 clean: sh_clean
 
@@ -200,13 +207,13 @@ $(DBG_BUILDDIR)/Makefile.dep: mk_dbg_builddir $(DBG_DEPS)
 	cat $(DBG_DEPS) > $(DBG_BUILDDIR)/Makefile.dep
 	cp -f $(DBG_BUILDDIR)/Makefile.dep $(BUILDDIR)/Makefile.dep
 
-$(SH_BUILDDIR)/%.d: $(SRCDIR)/%.cpp
+$(SH_BUILDDIR)/%.d: %.cpp
 	-$(CC) $(CDEFS) $(SH_CFLAGS) -MM $< | sed 's#^.*\.o:#$@:#' | sed 's/\.d:/.o:/' > $@
 
-$(ST_BUILDDIR)/%.d: $(SRCDIR)/%.cpp
+$(ST_BUILDDIR)/%.d: %.cpp
 	-$(CC) $(CDEFS) $(ST_CFLAGS) -MM $< | sed 's#^.*\.o:#$@:#' | sed 's/\.d:/.o:/' > $@
 
-$(DBG_BUILDDIR)/%.d: $(SRCDIR)/%.cpp
+$(DBG_BUILDDIR)/%.d: %.cpp
 	-$(CC) $(CDEFS) $(DBG_CFLAGS) -MM $< | sed 's#^.*\.o:#$@:#' | sed 's/\.d:/.o:/' > $@
 
 -include $(BUILDDIR)/Makefile.dep

@@ -134,6 +134,10 @@ PsFileInput::PsFileInput()
 	: PsFileType(), wxInputStream() {
 	start_pos = 0;
 }
+PsFileInput::PsFileInput(const PsFileType &type) 
+	: PsFileType(type), wxInputStream() {
+	start_pos = 0;
+}
 PsFileInput::PsFileInput(const PsFileInput &src)
 	: PsFileType(src), wxInputStream() {
 	start_pos = src.start_pos;
@@ -146,6 +150,9 @@ PsFileInput &PsFileInput::operator=(const PsFileInput &src) {
 	PsFileType::operator=(src);
 	start_pos = src.start_pos;
 	return *this; 
+}
+wxInputStream &PsFileInput::Read(void *buffer, size_t size) {
+	return wxInputStream::Read(buffer, size);
 }
 #if 0
 size_t PsFileInput::Read(const wxUint8 *buffer, size_t size) {
@@ -186,6 +193,9 @@ PsFileOutput::PsFileOutput(const PsFileOutput &src)
 PsFileOutput &PsFileOutput::operator=(const PsFileOutput &src) {
 	PsFileType::operator=(src);
 	return *this; 
+}
+wxOutputStream &PsFileOutput::Write(const void *buffer, size_t size) {
+	return wxOutputStream::Write(buffer, size);
 }
 #if 0
 size_t PsFileOutput::Write(const wxUint8 *buffer, size_t size) {
@@ -244,6 +254,9 @@ wxFileOffset PsFileStrInput::GetLength() const {
 size_t PsFileStrInput::Read(const wxUint8 *buffer, size_t size) {
 	return BinStringInputStream::Read((void *)buffer, size).LastRead();
 }
+wxInputStream &PsFileStrInput::Read(void *buffer, size_t size) {
+	return BinStringInputStream::Read((void *)buffer, size);
+}
 PsFileStrInput &PsFileStrInput::Read(PsFileOutput &src) {
 	PsFileType::operator=(src);
 	BinStringInputStream::Read(src);
@@ -285,7 +298,10 @@ bool PsFileStrOutput::IsOpened() const {
 	return true;
 }
 size_t PsFileStrOutput::Write(const wxUint8 *buffer, size_t size) {
-	return BinStringOutputStream::Write((void *)buffer, size).LastWrite();
+	return BinStringOutputStream::Write((const void *)buffer, size).LastWrite();
+}
+wxOutputStream &PsFileStrOutput::Write(const void *buffer, size_t size) {
+	return BinStringOutputStream::Write(buffer, size);
 }
 size_t PsFileStrOutput::Write(const wxString &str) {
 	wxScopedCharBuffer buf = str.To8BitData();
@@ -324,6 +340,9 @@ bool PsFileFsInput::IsOpened() const {
 size_t PsFileFsInput::Read(const wxUint8 *buffer, size_t size) {
 	return wxFileInputStream::Read((void *)buffer, size).LastRead();
 }
+wxInputStream &PsFileFsInput::Read(void *buffer, size_t size) {
+	return wxFileInputStream::Read((void *)buffer, size);
+}
 PsFileFsInput &PsFileFsInput::Read(PsFileOutput &src) {
 	PsFileType::operator=(src);
 	wxFileInputStream::Read(src);
@@ -361,6 +380,9 @@ bool PsFileFsOutput::IsOpened() const {
 }
 size_t PsFileFsOutput::Write(const wxUint8 *buffer, size_t size) {
 	return wxFileOutputStream::Write((const void *)buffer, size).LastWrite();
+}
+wxOutputStream &PsFileFsOutput::Write(const void *buffer, size_t size) {
+	return wxFileOutputStream::Write(buffer, size);
 }
 size_t PsFileFsOutput::Write(const wxString &str) {
 	wxScopedCharBuffer buf = str.To8BitData();
@@ -413,7 +435,7 @@ void PsFileInputInfo::ClearData() {
 //
 //
 PsFileOutputInfo::PsFileOutputInfo()
-	: PsFileType(), PsFileInfo() {
+	: PsFileInfo(), PsFileType() {
 }
 PsFileOutputInfo::~PsFileOutputInfo() {
 }

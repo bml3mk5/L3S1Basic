@@ -5,6 +5,7 @@
 #include "config.h"
 #include <wx/filename.h>
 #include <wx/fileconf.h>
+#include "colortag.h"
 
 Config::Config() : ParseParam()
 {
@@ -14,6 +15,8 @@ Config::Config() : ParseParam()
 	mFilePath = _T("");
 
 	SetDefaultFontName();
+
+	mAddSpaceAfterColon = false;
 }
 
 Config::~Config()
@@ -44,11 +47,20 @@ void Config::Load()
 	ini->Read(_T("StartAddr"), &v, mStartAddr); if(0 <= v && v <= 3) mStartAddr = v;
 	ini->Read(_T("FontName"), &mFontName, mFontName);
 	ini->Read(_T("FontSize"), &v, mFontSize); if(1 <= v && v < 100) mFontSize = v;
+	ini->Read(_T("AddSpaceAfterColon"), &mAddSpaceAfterColon, mAddSpaceAfterColon);
+	ini->Read(_T("Language"), &mLanguage);
 	for(int i=0; i<MAX_RECENT_FILES; i++) {
 		wxString sval;
 		ini->Read(wxString::Format(_T("Recent%d"), i), &sval);
 		if (!sval.IsEmpty()) {
 			mRecentFiles.Add(sval);
+		}
+	}
+	for(int i=0; i<COLOR_TAG_COUNT; i++) {
+		wxString sval;
+		ini->Read(wxString::Format(_T("Color%d"), i), &sval);
+		if (!sval.IsEmpty() && sval.Left(1) == wxT("#")) {
+			gColorTag.SetFromHTMLColor(i, sval);
 		}
 	}
 	delete ini;
@@ -77,11 +89,19 @@ void Config::Save()
 	ini->Write(_T("StartAddr"), mStartAddr);
 	ini->Write(_T("FontName"), mFontName);
 	ini->Write(_T("FontSize"), mFontSize);
+	ini->Write(_T("AddSpaceAfterColon"), mAddSpaceAfterColon);
+	ini->Write(_T("Language"), mLanguage);
 	for(int i=0,row=0; row<MAX_RECENT_FILES && i<(int)mRecentFiles.Count(); i++) {
 		wxString sval = mRecentFiles.Item(i);
 		if (sval.IsEmpty()) continue;
 		ini->Write(wxString::Format(_T("Recent%d"), row), sval);
 		row++;
+	}
+	for(int i=0; i<COLOR_TAG_COUNT; i++) {
+		wxString sval;
+		if (gColorTag.GetFromHTMLColor(i, sval)) {
+			ini->Write(wxString::Format(_T("Color%d"), i), sval);
+		}
 	}
 	// write
 	delete ini;
@@ -126,3 +146,5 @@ void Config::GetRecentFiles(wxArrayString &vals)
 	vals = mRecentFiles;
 }
 
+/// インスタンス
+Config gConfig;
