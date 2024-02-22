@@ -1,0 +1,203 @@
+# MSX-BASIC コード変換テーブル
+# 
+# 書式:
+# <中間言語コード>,<BASICステートメント>,<属性>,<表示用属性>
+#
+# 属性:
+# data    : これ以降コロンまでDATA文としてそのまま出力
+# comment : これ以降行末までコメントと解釈
+# colon   : この命令の前にある:を取り除く
+# linenumber : この命令の後に来る数値を行番号とみなす
+# charnumber : この命令の後に来る数値を文字列とみなす
+# contlinenumber : linenumber命令が来てこの命令の後に来る数値を行番号とみなす
+# onelinenumber : この命令の後に来る最初の数値だけを行番号とみなす
+# contonelinenumber : linenumber命令が来てこの命令の後に来る最初の数値だけを行番号とみなす
+# innersentence : 命令内部でのみ有効
+# hexstring : この命令から16進文字列とみなす
+# octstring : この命令から8進文字列とみなす
+[MSX BASIC]
+23,   #		,			,nostatement
+0B,   &O	,			,octstring nostatement
+0C,   &H	,			,hexstring nostatement
+2642, &B	,			,charnumber nostatement
+4153, AS	,innersentence		,charnumber nostatement
+#
+5F, _		,			,contstatement
+81, END
+82, FOR
+83, NEXT
+84, DATA	,data
+85, INPUT
+86, DIM
+87, READ
+88, LET
+89, GOTO	,			,linenumber
+89, GO TO	,			,linenumber
+8A, RUN
+8B, IF
+8C, RESTORE	,			,linenumber
+8D, GOSUB	,			,linenumber
+8E, RETURN	,			,linenumber
+8F, REM		,comment
+90, STOP
+91, PRINT
+92, CLEAR
+93, LIST
+94, NEW
+95, ON
+96, WAIT
+97, DEF
+98, POKE
+99, CONT
+9A, CSAVE
+9B, CLOAD
+9C, OUT
+9D, LPRINT
+9E, LLIST
+9F, CLS
+A0, WIDTH
+3AA1, ELSE	,			,linenumber
+A2, TRON
+A3, TROFF
+A4, SWAP
+A5, ERASE
+A6, ERROR
+A7, RESUME
+A8, DELETE
+A9, AUTO
+AA, RENUM
+AB, DEFSTR
+AC, DEFINT
+AD, DEFSNG
+AE, DEFDBL
+AF, LINE
+B0, OPEN
+B1, FIELD
+B2, GET
+B3, PUT
+B4, CLOSE
+B5, LOAD
+B6, MERGE
+B7, FILES
+B8, LSET
+B9, RSET
+BA, SAVE
+BB, LFILES
+BC, CIRCLE
+BD, COLOR
+BE, DRAW
+BF, PAINT
+C0, BEEP
+C1, PLAY
+C2, PSET
+C3, PRESET
+C4, SOUND
+C5, SCREEN
+C6, VPOKE
+C7, SPRITE
+C8, VDP
+C9, BASE
+CA, CALL	,			,contstatement
+CB, TIME
+CC, KEY
+CD, MAX
+CE, MOTOR
+CF, BLOAD
+D0, BSAVE
+D1, DSKO$
+D2, SET
+D3, NAME
+D4, KILL
+D5, IPL
+D6, COPY
+D7, CMD
+D8, LOCATE
+D9, TO
+DA, THEN	,			,linenumber
+DB, TAB(
+DC, STEP
+DD, USR
+DE, FN
+DF, SPC(
+E0, NOT
+E1, ERL
+E2, ERR
+E3, STRING$
+E4, USING
+E5, INSTR
+3A8FE6, '	,comment
+E7, VARPTR
+E8, CSRLIN
+E9, ATTR$
+EA, DSKI$
+EB, OFF
+EC, INKEY$
+ED, POINT
+EE, >		,			,nostatement
+EF, =		,			,nostatement
+F0, <		,			,nostatement
+F1, +		,			,nostatement
+F2, -		,			,nostatement
+F3, *		,			,nostatement
+F4, /		,			,nostatement
+F5, ^		,			,nostatement
+F6, AND		,			,nostatement
+F7, OR		,			,nostatement
+F8, XOR		,			,nostatement
+F9, EQV		,			,nostatement
+FA, IMP		,			,nostatement
+FB, MOD		,			,nostatement
+FC, \		,			,nostatement
+
+#
+#
+[MSX BASIC]
+FF81, LEFT$
+FF82, RIGHT$
+FF83, MID$
+FF84, SGN
+FF85, INT
+FF86, ABS
+FF87, SQR
+FF88, RND
+FF89, SIN
+FF8A, LOG
+FF8B, EXP
+FF8C, COS
+FF8D, TAN
+FF8E, ATN
+FF8F, FRE
+FF90, INP
+FF91, POS
+FF92, LEN
+FF93, STR$
+FF94, VAL
+FF95, ASC
+FF96, CHR$
+FF97, PEEK
+FF98, VPEEK
+FF99, SPACE$
+FF9A, OCT$
+FF9B, HEX$
+FF9C, LPOS
+FF9D, BIN$
+FF9E, CINT
+FF9F, CSNG
+FFA0, CDBL
+FFA1, FIX
+FFA2, STICK
+FFA3, STRIG
+FFA4, PDL
+FFA5, PAD
+FFA6, DSKF
+FFA7, FPOS
+FFA8, CVI
+FFA9, CVS
+FFAA, CVD
+FFAB, EOF
+FFAC, LOC
+FFAD, LOF
+FFAE, MKI$
+FFAF, MKS$
+FFB0, MKD$
+

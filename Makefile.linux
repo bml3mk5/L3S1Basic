@@ -47,20 +47,25 @@ SRCDATA=$(DATADIR)/
 
 OBJS=$(SRCDIR)/errorinfo.o \
 	$(SRCDIR)/bsstream.o \
+	$(SRCDIR)/bsstring.o \
 	$(SRCDIR)/uint192.o \
 	$(SRCDIR)/decistr.o \
 	$(SRCDIR)/l3float.o \
 	$(SRCDIR)/fileinfo.o \
 	$(SRCDIR)/maptable.o \
 	$(SRCDIR)/parse.o \
-	$(SRCDIR)/parsetape.o \
+	$(SRCDIR)/parse_l3s1basic.o \
+	$(SRCDIR)/parsetape_l3s1basic.o \
+	$(SRCDIR)/parse_msxbasic.o \
+	$(SRCDIR)/parsetape_msxbasic.o \
 	$(SRCDIR)/parseresult.o \
 	$(SRCDIR)/config.o \
 	$(SRCDIR)/configbox.o \
 	$(SRCDIR)/dispsetbox.o \
 	$(SRCDIR)/fontminibox.o \
 	$(SRCDIR)/chartypebox.o \
-	$(SRCDIR)/intnamebox.o \
+	$(SRCDIR)/tapebox.o \
+	$(SRCDIR)/pssymbol.o \
 	$(SRCDIR)/mytextctrl.o \
 	$(SRCDIR)/mymenu.o \
 	$(SRCDIR)/colortag.o \

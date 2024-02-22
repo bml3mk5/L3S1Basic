@@ -58,12 +58,14 @@
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>false</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>false</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -79,11 +81,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>false</CLRSupport>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DLLDebug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>false</CLRSupport>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -166,8 +170,8 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <Culture>0x0411</Culture>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -196,8 +200,8 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <Culture>0x0411</Culture>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -226,8 +230,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <Culture>0x0411</Culture>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -255,8 +259,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <Culture>0x0411</Culture>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -285,6 +289,7 @@
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -315,6 +320,7 @@
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -345,6 +351,7 @@
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -374,6 +381,7 @@
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(wxWidgetsIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;$(Platform);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -390,6 +398,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\bsstream.cpp" />
+    <ClCompile Include="..\src\bsstring.cpp" />
     <ClCompile Include="..\src\chartypebox.cpp" />
     <ClCompile Include="..\src\colortag.cpp" />
     <ClCompile Include="..\src\config.cpp" />
@@ -399,19 +408,25 @@
     <ClCompile Include="..\src\errorinfo.cpp" />
     <ClCompile Include="..\src\fileinfo.cpp" />
     <ClCompile Include="..\src\fontminibox.cpp" />
-    <ClCompile Include="..\src\intnamebox.cpp" />
     <ClCompile Include="..\src\l3float.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\maptable.cpp" />
     <ClCompile Include="..\src\mymenu.cpp" />
     <ClCompile Include="..\src\mytextctrl.cpp" />
     <ClCompile Include="..\src\parse.cpp" />
+    <ClCompile Include="..\src\parse_l3s1basic.cpp" />
+    <ClCompile Include="..\src\parse_msxbasic.cpp" />
     <ClCompile Include="..\src\parseresult.cpp" />
-    <ClCompile Include="..\src\parsetape.cpp" />
+    <ClCompile Include="..\src\parsetape_l3s1basic.cpp" />
+    <ClCompile Include="..\src\parsetape_msxbasic.cpp" />
+    <ClCompile Include="..\src\pssymbol.cpp" />
+    <ClCompile Include="..\src\tapebox.cpp" />
     <ClCompile Include="..\src\uint192.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\basicspecs.h" />
     <ClInclude Include="..\src\bsstream.h" />
+    <ClInclude Include="..\src\bsstring.h" />
     <ClInclude Include="..\src\chartypebox.h" />
     <ClInclude Include="..\src\colortag.h" />
     <ClInclude Include="..\src\common.h" />
@@ -422,16 +437,18 @@
     <ClInclude Include="..\src\errorinfo.h" />
     <ClInclude Include="..\src\fileinfo.h" />
     <ClInclude Include="..\src\fontminibox.h" />
-    <ClInclude Include="..\src\intnamebox.h" />
     <ClInclude Include="..\src\l3float.h" />
-    <ClInclude Include="..\src\l3specs.h" />
     <ClInclude Include="..\src\main.h" />
     <ClInclude Include="..\src\maptable.h" />
     <ClInclude Include="..\src\mymenu.h" />
     <ClInclude Include="..\src\mytextctrl.h" />
     <ClInclude Include="..\src\parse.h" />
+    <ClInclude Include="..\src\parse_l3s1basic.h" />
+    <ClInclude Include="..\src\parse_msxbasic.h" />
     <ClInclude Include="..\src\parseparam.h" />
     <ClInclude Include="..\src\parseresult.h" />
+    <ClInclude Include="..\src\pssymbol.h" />
+    <ClInclude Include="..\src\tapebox.h" />
     <ClInclude Include="..\src\uint192.h" />
     <ClInclude Include="..\src\version.h" />
   </ItemGroup>

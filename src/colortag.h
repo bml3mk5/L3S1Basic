@@ -22,9 +22,11 @@ typedef struct st_color_tag {
 enum enColorTagIDs {
 	COLOR_TAG_COMMENT = 2,
 	COLOR_TAG_DATALINE = 3,
+	COLOR_TAG_HEXAOCTA = 7,
 	COLOR_TAG_LINENUMBER = 11,
 	COLOR_TAG_QUOTED = 16,
-	COLOR_TAG_STATEMENT = 21,
+	COLOR_TAG_STATEMENT = 18,
+	COLOR_TAG_VARIABLE = 21,
 	COLOR_TAG_COLON = 24,
 	COLOR_TAG_COUNT = 26
 };
@@ -49,7 +51,5 @@ public:
 	void SetFromHTMLColor(int id, const wxString &val);
 	bool GetFromHTMLColor(int id, wxString &val) const;
 };
-
-extern MyColorTag gColorTag;
 
 #endif /* MYCOLORTAG_H */

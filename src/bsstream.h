@@ -1,4 +1,4 @@
-/// @file bsstream.h
+﻿/// @file bsstream.h
 ///
 /// @brief 8bit binary string stream
 ///

@@ -3,15 +3,16 @@
 #
 CC=g++
 
-APPLICATION_VERSION=0.7.0
+APPLICATION_VERSION=0.8.0
 
 CDEFS=
 DBG_CDEFS=-D_DEBUG -D_DEBUG_LOG
 
-ARCH=-arch i386 -arch x86_64
-MACVERMIN=-mmacosx-version-min=10.7
+#ARCH=-arch i386 -arch x86_64
+ARCH=-arch arm64 -arch x86_64
+MACVERMIN=-mmacosx-version-min=10.11
 
-WXDIR=../../../../Devel/wxWidgets-3.1.3
+WXDIR=../../../../Devel/wxWidgets-3.2.4
 WXCONFIG_SH=$(WXDIR)/build_release_shared_unicode/wx-config
 WXCONFIG_ST=$(WXDIR)/build_release_static_unicode/wx-config
 WXCONFIG_DBG=$(WXDIR)/build_debug_static_unicode/wx-config
@@ -56,20 +57,25 @@ SRCDATA=$(DATADIR)/
 
 OBJS=$(SRCDIR)/errorinfo.o \
 	$(SRCDIR)/bsstream.o \
+	$(SRCDIR)/bsstring.o \
 	$(SRCDIR)/uint192.o \
 	$(SRCDIR)/decistr.o \
 	$(SRCDIR)/l3float.o \
 	$(SRCDIR)/fileinfo.o \
 	$(SRCDIR)/maptable.o \
 	$(SRCDIR)/parse.o \
-	$(SRCDIR)/parsetape.o \
+	$(SRCDIR)/parse_l3s1basic.o \
+	$(SRCDIR)/parsetape_l3s1basic.o \
+	$(SRCDIR)/parse_msxbasic.o \
+	$(SRCDIR)/parsetape_msxbasic.o \
 	$(SRCDIR)/parseresult.o \
 	$(SRCDIR)/config.o \
 	$(SRCDIR)/configbox.o \
 	$(SRCDIR)/dispsetbox.o \
 	$(SRCDIR)/fontminibox.o \
 	$(SRCDIR)/chartypebox.o \
-	$(SRCDIR)/intnamebox.o \
+	$(SRCDIR)/tapebox.o \
+	$(SRCDIR)/pssymbol.o \
 	$(SRCDIR)/mytextctrl.o \
 	$(SRCDIR)/mymenu.o \
 	$(SRCDIR)/colortag.o \

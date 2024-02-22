@@ -8,6 +8,7 @@
 #include "common.h"
 #include <wx/wx.h>
 #include <wx/dynarray.h>
+#include <wx/hashmap.h>
 
 /// エラーコード
 typedef enum enumPrErrCode {
@@ -23,30 +24,67 @@ typedef enum enumPrErrCode {
 	prErrInvalidNumber,
 	prErrInvalidLineNumber,
 	prErrDiscontLineNumber,
+	prErrDuplicateLineNumber,
 	prErrEraseCodeFE,
 } PrErrCode;
 
-/// 解析結果保存アイテムクラス
-class ParseResultItem {
+WX_DECLARE_HASH_MAP(int, int, wxIntegerHash, wxIntegerEqual, LineNumberMap);
+
+/// 位置情報
+class ParsePosition
+{
+protected:
+	wxString mName;			///< 名称
+	long mLineNumber;		///< BASIC行番号
+	LineNumberMap mLineNumberMap;	///< 重複チェック用
+
 public:
-	long line;
-	long pos;
-	long line_number;
-	PrErrCode error_code;
-	wxString name;
+	size_t mRow;			///< 行
+	size_t mCol;			///< 列
+
+public:
+	ParsePosition();
+	ParsePosition(size_t row, size_t col, long line_number, const wxString &name);
+	~ParsePosition();
+	void Empty();
+	void SetRow(size_t val);
+	void SetCol(size_t val);
+	int  SetLineNumber(long val);
+	void SetName(const wxString &val);
+	size_t GetRow() const;
+	size_t GetCol() const;
+	long GetLineNumber() const;
+	const wxString &GetName() const;
+};
+
+/// 解析結果保存アイテムクラス
+class ParseResultItem : public ParsePosition
+{
+protected:
+	PrErrCode mErrorCode;
+	int mValue;
 public:
 	ParseResultItem();
-	ParseResultItem(long new_line, long new_pos, long new_line_number, const wxString &new_name, PrErrCode new_error_code);
+	ParseResultItem(const ParsePosition &pos, PrErrCode error_code);
+	ParseResultItem(const ParsePosition &pos, PrErrCode error_code, int value);
+//	ParseResultItem(size_t row, size_t col, long line_number, const wxString &name, PrErrCode error_code);
+	void SetErrorCode(PrErrCode val) { mErrorCode = val; }
+	PrErrCode GetErrorCode() const { return mErrorCode; }
+	int GetValue() const { return mValue; }
+	wxString GetValueString() const;
 };
 WX_DECLARE_OBJARRAY(ParseResultItem, ParseResultItems);
 
 /// 解析結果保存クラス
-class ParseResult {
+class ParseResult
+{
 private:
-	ParseResultItems items;
+	ParseResultItems mItems;
 public:
 	ParseResult();
-	void Add(long new_line, long new_pos, long new_line_number, const wxString &new_name, PrErrCode new_error_code);
+	void Add(const ParsePosition &pos, PrErrCode error_code);
+	void Add(const ParsePosition &pos, PrErrCode error_code, int value);
+//	void Add(size_t row, size_t col, size_t line_number, const wxString &name, PrErrCode error_code);
 	void Empty();
 	size_t GetCount();
 	/// エラーメッセージ

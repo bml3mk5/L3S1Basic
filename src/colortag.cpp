@@ -25,7 +25,7 @@ const color_tag_t MyColorTag::cColorTags[COLOR_TAG_COUNT] = {
 	{ 0, 0, 0, 0 },		// end
 	{ 0xff, 0, 0, 0 },	// f
 	{ 0xff, 0, 0, 0 },	// g
-	{ 0xff, 0, 0, 0 },	// h
+	{ 1, 0, 0, 0 },	// hexa/octa
 	{ 0xff, 0, 0, 0 },	// i
 	{ 0xff, 0, 0, 0 },	// j
 	{ 0xff, 0, 0, 0 },	// k
@@ -36,10 +36,10 @@ const color_tag_t MyColorTag::cColorTags[COLOR_TAG_COUNT] = {
 	{ 0xff, 0, 0, 0 },	// p
 	{ 1, 192, 0, 0 },	// quote
 	{ 0xff, 0, 0, 0 },	// r
-	{ 0xff, 0, 0, 0 },	// s
+	{ 1, 0, 0, 255 },	// statement
 	{ 0xff, 0, 0, 0 },	// t
 	{ 0xff, 0, 0, 0 },	// u
-	{ 1, 0, 0, 255 },	// variable
+	{ 1, 128, 128, 0 },	// variable
 	{ 0xff, 0, 0, 0 },	// w
 	{ 0xff, 0, 0, 0 },	// x
 	{ 1, 192, 192, 0 },	// y colon
@@ -129,7 +129,3 @@ bool MyColorTag::GetFromHTMLColor(int id, wxString &val) const
 	);
 	return true;
 }
-
-/// テキスト色インスタンス
-MyColorTag gColorTag;
-

@@ -202,6 +202,12 @@ void MyTextCtrl::SetLine(const wxString &value)
 }
 #endif
 
+/// テキスト色情報を設定
+void MyTextCtrl::SetColorTag(const MyColorTag &color)
+{
+	mColorTag = color;
+}
+
 /// 1行分のテキストを設定
 void MyTextCtrl::SetLine(const wxString &value)
 {
@@ -220,7 +226,7 @@ void MyTextCtrl::SetLine(const wxString &value)
 		pos++;
 		int idx = (int)value.GetChar(pos) - 0x61;
 		if (idx >= 0 && idx < 26) {
-			tag = gColorTag.Get(idx);
+			tag = mColorTag.Get(idx);
 			if (tag->start <= 1) {
 				if (m_line.Len() > 0) {
 #ifdef USE_RICHTEXTCTRL

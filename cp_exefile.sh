@@ -1,8 +1,10 @@
 #!/bin/sh
+APP=l3s1basic
 OS=`uname -s`
 if [ "$OS" = "Darwin" ]; then
-	mkdir -p ./bin/macosx64
-	cp -p ./Release/l3s1basic.app/Contents/MacOS/l3s1basic ./bin/macosx64/
+	DIR=./bin/macosx/Release
+	mkdir -p $DIR
+	cp -p ./Release/$APP.app/Contents/MacOS/$APP $DIR
 fi
 if [ "$OS" = "Linux" ]; then
 	MA=`uname -m`
@@ -12,5 +14,5 @@ if [ "$OS" = "Linux" ]; then
 		DIR=./bin/linux32
 	fi
 	mkdir -p $DIR
-	cp -p ./Release/l3s1basic $DIR
+	cp -p ./Release/$APP $DIR
 fi

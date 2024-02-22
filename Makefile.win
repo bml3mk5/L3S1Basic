@@ -1,5 +1,5 @@
 #
-# for Windows + MSYS2 + MinGW
+# for Windows + MSYS2 + MinGW64
 #
 CC=g++
 
@@ -10,10 +10,10 @@ DBG_CDEFS=-D_DEBUG -D_DEBUG_LOG
 #ARCH=-m32
 #ARCH=-m64
 
-WXDIR=/D/Devel/sources/wxWidgets-3.1.2
+WXDIR=/D/Devel/sources/wxWidgets-3.2.4
 WXCONFIG_SH=wx-config
-WXCONFIG_ST=$(WXDIR)/build_release_static_unicode_x64/wx-config
-WXCONFIG_DBG=$(WXDIR)/build_debug_static_unicode_x64/wx-config
+WXCONFIG_ST=$(WXDIR)/build_release_static_unicode_mingw64/wx-config
+WXCONFIG_DBG=$(WXDIR)/build_debug_static_unicode_mingw64/wx-config
 
 SH_INCLUDES=$(shell $(WXCONFIG_SH) --cppflags all)
 ST_INCLUDES=$(shell $(WXCONFIG_ST) --cppflags all)
@@ -49,20 +49,25 @@ SRCDATA=$(DATADIR)/
 
 OBJS=$(SRCDIR)/errorinfo.o \
 	$(SRCDIR)/bsstream.o \
+	$(SRCDIR)/bsstring.o \
 	$(SRCDIR)/uint192.o \
 	$(SRCDIR)/decistr.o \
 	$(SRCDIR)/l3float.o \
 	$(SRCDIR)/fileinfo.o \
 	$(SRCDIR)/maptable.o \
 	$(SRCDIR)/parse.o \
-	$(SRCDIR)/parsetape.o \
+	$(SRCDIR)/parse_l3s1basic.o \
+	$(SRCDIR)/parsetape_l3s1basic.o \
+	$(SRCDIR)/parse_msxbasic.o \
+	$(SRCDIR)/parsetape_msxbasic.o \
 	$(SRCDIR)/parseresult.o \
 	$(SRCDIR)/config.o \
 	$(SRCDIR)/configbox.o \
 	$(SRCDIR)/dispsetbox.o \
 	$(SRCDIR)/fontminibox.o \
 	$(SRCDIR)/chartypebox.o \
-	$(SRCDIR)/intnamebox.o \
+	$(SRCDIR)/tapebox.o \
+	$(SRCDIR)/pssymbol.o \
 	$(SRCDIR)/mytextctrl.o \
 	$(SRCDIR)/mymenu.o \
 	$(SRCDIR)/colortag.o \

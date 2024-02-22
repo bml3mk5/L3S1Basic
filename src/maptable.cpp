@@ -45,7 +45,7 @@ CodeMapItem::~CodeMapItem() {
 	delete[] m_bytes;
 }
 CodeMapItem &CodeMapItem::operator=(const CodeMapItem &item) {
-	if (item.m_code && item.m_code_length > 0) memcpy(m_code, item.m_code, sizeof(m_code));
+	if (item.m_code_length > 0) memcpy(m_code, item.m_code, sizeof(m_code));
 	else memset(m_code, 0, sizeof(m_code));
 	m_code_length = item.m_code_length;
 	m_str = item.m_str;
@@ -74,7 +74,11 @@ wxUint32 CodeMapItem::ConvAttr(const wxString &attr)
 	} lists[] = {
 		{ "contonelinenumber", ATTR_CONTONELINENUMBER },
 		{ "contlinenumber", ATTR_CONTLINENUMBER },
+		{ "contstatement", ATTR_CONTSTATEMENT },
 		{ "onelinenumber", ATTR_ONELINENUMBER },
+		{ "innersentence", ATTR_INNERSENTENCE },
+		{ "nostatement", ATTR_NOSTATEMENT },
+		{ "charnumber", ATTR_CHARNUMBER },
 		{ "linenumber", ATTR_LINENUMBER },
 		{ "hexstring", ATTR_HEXSTRING },
 		{ "octstring", ATTR_OCTSTRING },

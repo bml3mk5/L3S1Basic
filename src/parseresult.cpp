@@ -5,41 +5,157 @@
 #include "parseresult.h"
 #include <wx/arrimpl.cpp>
 
-ParseResultItem::ParseResultItem()
+//////////////////////////////////////////////////////////////////////
+
+ParsePosition::ParsePosition()
 {
-	line = 0;
-	pos = 0;
-	line_number = 0;
-	error_code = prErrNone;
-	name.Empty();
-}
-ParseResultItem::ParseResultItem(long new_line, long new_pos, long new_line_number, const wxString &new_name, PrErrCode new_error_code)
-{
-	line = new_line;
-	pos = new_pos;
-	line_number = new_line_number;
-	error_code = new_error_code;
-	name = new_name;
+	mLineNumber = 0;
+	mRow = 0;
+	mCol = 0;
 }
 
+ParsePosition::ParsePosition(size_t row, size_t col, long line_number, const wxString &name)
+{
+	mName = name;
+	mLineNumber = line_number;
+	mLineNumberMap[line_number] = (int)mRow;
+	mRow = row;
+	mCol = col;
+}
+
+ParsePosition::~ParsePosition()
+{
+}
+
+void ParsePosition::Empty()
+{
+	mName.Empty();
+	mLineNumber = 0;
+	mLineNumberMap.clear();
+	mRow = 0;
+	mCol = 0;
+}
+
+void ParsePosition::SetRow(size_t val)
+{
+	mRow = val;
+}
+
+void ParsePosition::SetCol(size_t val)
+{
+	mCol = val;
+}
+
+/// 行番号をセット
+/// 同時に重複しているかチェック
+/// @return >=0 : すでに存在する場合行を返す
+int ParsePosition::SetLineNumber(long val)
+{
+	int exists_row = -1;
+	mLineNumber = val;
+	LineNumberMap::const_iterator cit = mLineNumberMap.find(val);
+	if (cit != mLineNumberMap.end()) {
+		// already exists
+		exists_row = mLineNumberMap[val];
+	}
+	mLineNumberMap[val] = (int)mRow;
+	return exists_row;
+}
+
+void ParsePosition::SetName(const wxString &val)
+{
+	mName = val;
+}
+
+size_t ParsePosition::GetRow() const
+{
+	return mRow;
+}
+
+size_t ParsePosition::GetCol() const
+{
+	return mCol;
+}
+
+long ParsePosition::GetLineNumber() const
+{
+	return mLineNumber;
+}
+
+const wxString &ParsePosition::GetName() const
+{
+	return mName;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+ParseResultItem::ParseResultItem() : ParsePosition()
+{
+	mErrorCode = prErrNone;
+	mValue = -1;
+	mName.Empty();
+}
+
+ParseResultItem::ParseResultItem(const ParsePosition &pos, PrErrCode error_code)
+	: ParsePosition(pos)
+{
+	mErrorCode = error_code;
+	mValue = -1;
+}
+
+ParseResultItem::ParseResultItem(const ParsePosition &pos, PrErrCode error_code, int value)
+	: ParsePosition(pos)
+{
+	mErrorCode = error_code;
+	mValue = value;
+}
+
+#if 0
+ParseResultItem::ParseResultItem(size_t row, size_t col, long line_number, const wxString &name, PrErrCode error_code)
+	: ParsePosition(row, col, line_number, name)
+{
+	mErrorCode = error_code;
+}
+#endif
+wxString ParseResultItem::GetValueString() const
+{
+	return wxString::Format(_T("%d"), mValue);
+}
+
+//////////////////////////////////////////////////////////////////////
+
 WX_DEFINE_OBJARRAY(ParseResultItems);
+
+//////////////////////////////////////////////////////////////////////
 
 ParseResult::ParseResult()
 {
 	Empty();
 }
-void ParseResult::Add(long new_line, long new_pos, long new_line_number, const wxString &new_name, PrErrCode new_error_code)
+void ParseResult::Add(const ParsePosition &pos, PrErrCode error_code)
 {
-	ParseResultItem *item = new ParseResultItem(new_line, new_pos, new_line_number, new_name, new_error_code);
-	items.Add(item);
+	ParseResultItem *item = new ParseResultItem(pos, error_code);
+	mItems.Add(item);
 }
+void ParseResult::Add(const ParsePosition &pos, PrErrCode error_code, int value)
+{
+	ParseResultItem *item = new ParseResultItem(pos, error_code, value);
+	mItems.Add(item);
+}
+#if 0
+void ParseResult::Add(size_t row, size_t col, size_t line_number, const wxString &name, PrErrCode error_code)
+{
+	ParseResultItem *item = new ParseResultItem(row, col, line_number, name, error_code);
+	mItems.Add(item);
+}
+#endif
 void ParseResult::Empty()
 {
-	items.Empty();
+	mItems.Empty();
 }
 size_t ParseResult::GetCount()
 {
-	return items.GetCount();
+	return mItems.GetCount();
 }
 
 /// エラーメッセージ
@@ -89,7 +205,11 @@ wxString ParseResult::ErrMsg(PrErrCode code)
 			break;
 		case prErrDiscontLineNumber:
 			// 行番号が前行より小さくなっています。
-			msg = _("Line number is smaller than above it.");
+			msg = _("The line number is smaller than above it.");
+			break;
+		case prErrDuplicateLineNumber:
+			// 行番号が重複しています。
+			msg = _("The line number duplicate another line:");
 			break;
 		case prErrEraseCodeFE:
 			// キャラクタコード&HFEは削除されます。
@@ -109,19 +229,22 @@ void ParseResult::Report(wxArrayString &lines)
 	wxString msg;
 	wxString numstr;
 	ParseResultItem *itm;
-	for (size_t i=0; i<items.GetCount(); i++) {
-		itm = &items.Item(i);
+	for (size_t i=0; i<mItems.GetCount(); i++) {
+		itm = &mItems.Item(i);
 		msg = _("Linenumber:");
-		numstr.Printf(_T("%ld"), itm->line_number);
+		numstr.Printf(_T("%ld"), (wxInt32)(itm->GetLineNumber()));
 		msg += numstr;
 		msg += _T(" (") + _("Row:");
-		numstr.Printf(_T("%ld"), itm->line);
+		numstr.Printf(_T("%lu"), (wxUint32)(itm->GetRow() + 1));
 		msg += numstr;
 		msg += _T(" ") + _("Col:");
-		numstr.Printf(_T("%ld"), itm->pos);
+		numstr.Printf(_T("%lu"), (wxUint32)(itm->GetCol() + 1));
 		msg += numstr;
-		msg += _T(") [") + itm->name + _T("] ");
-		msg += ErrMsg(itm->error_code);
+		msg += _T(") [") + itm->GetName() + _T("] ");
+		msg += ErrMsg(itm->GetErrorCode());
+		if (itm->GetValue() >= 0) {
+			msg += itm->GetValueString();
+		}
 
 		lines.Add(msg);
 	}

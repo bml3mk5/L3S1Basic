@@ -2,8 +2,8 @@
 ///
 /// @brief 本体
 ///
-#ifndef L3S1BASIC_H
-#define L3S1BASIC_H
+#ifndef MAIN_H
+#define MAIN_H
 
 #include "common.h"
 #include <wx/wx.h>
@@ -12,12 +12,13 @@
 #include <wx/fontdlg.h>
 #include "mytextctrl.h"
 #include "parse.h"
+#include "config.h"
 
-class L3basicApp;
-class L3basicFrame;
-class L3basicPanel;
-class L3basicFileDialog;
-class L3basicFileDropTarget;
+class BasicApp;
+class BasicFrame;
+class BasicPanel;
+class BasicFileDialog;
+class BasicFileDropTarget;
 
 class MyMenu;
 
@@ -25,19 +26,19 @@ class MyMenu;
 //class ConfigBox;
 
 /// メインWindow
-class L3basicApp: public wxApp
+class BasicApp: public wxApp
 {
 private:
 	wxString app_path;
 	wxString ini_path;
 	wxString res_path;
 	wxLocale mLocale;
-	L3basicFrame *frame;
+	BasicFrame *frame;
 	wxString in_file;
 
 	void SetAppPath();
 public:
-	L3basicApp();
+	BasicApp();
 	bool OnInit();
 	void OnInitCmdLine(wxCmdLineParser &parser);
 	bool OnCmdLineParsed(wxCmdLineParser &parser);
@@ -48,35 +49,40 @@ public:
 	const wxString &GetIniPath();
 	const wxString &GetResPath();
 
-	L3basicFrame *GetFrame();
+	BasicFrame *GetFrame();
 };
 
-DECLARE_APP(L3basicApp)
+DECLARE_APP(BasicApp)
 
 /// メインFrame
-class L3basicFrame: public wxFrame
+class BasicFrame: public wxFrame
 {
 private:
 	// gui
 	MyMenu *menuFile;
-	MyMenu *menuOther;
+	MyMenu *menuMachine;
+	MyMenu *menuSettings;
 	MyMenu *menuHelp;
 	MyMenu *menuRecentFiles;
-	L3basicPanel *panel;
+	BasicPanel *panel;
 
+	ParseCollection psCollection;
 	Parse *ps;
 
 //	ConfigBox *cfgbox;
 //	CharTypeBox *ctypebox;
 
-	wxString file_path;
+//	wxString file_path;
+	bool mOk;
+
 
 public:
 
-    L3basicFrame(const wxString& title, const wxSize& size);
-	~L3basicFrame();
+    BasicFrame(const wxString& title, const wxSize& size);
+	~BasicFrame();
 
 	bool Init(const wxString &in_file);
+	bool Restart();
 
 	/// @name event procedures
 	//@{
@@ -90,8 +96,11 @@ public:
 
 	void OnOpenRecentFile(wxCommandEvent& event);
 
+	void OnChangeMachine(wxCommandEvent& event);
+
 	void OnConfigure(wxCommandEvent& event);
 	void OnDispSettings(wxCommandEvent& event);
+	void OnTapeSettings(wxCommandEvent& event);
 
 	void OnMenuOpen(wxMenuEvent& event);
 	//@}
@@ -113,7 +122,10 @@ public:
 
 	/// @name properties
 	//@{
-	L3basicPanel *GetL3basicPanel() { return panel; }
+	BasicPanel *GetBasicPanel() { return panel; }
+	Parse *GetParse() { return ps; }
+	bool IsOk() const { return mOk; }
+	ConfigParam *GetConfigParam();
 	//@}
 
 	enum en_menu_id
@@ -130,12 +142,16 @@ public:
 		IDM_EXPORT_ASCIITXTTAPE,
 		IDM_EXPORT_ASCIITXTDISK,
 		IDM_EXPORT_UTF8TEXT,
+		IDM_MACHINE_L3S1,
+		IDM_MACHINE_MSX,
 		IDM_CONFIGURE,
 		IDM_DISP_SETTINGS,
+		IDM_TAPE_SETTINGS,
 
 		IDD_CONFIGBOX,
 		IDD_CHARTYPEBOX,
 		IDD_INTNAMEBOX,
+		IDD_TAPEBOX,
 
 		IDM_RECENT_FILE_0 = 50,
 	};
@@ -144,10 +160,10 @@ public:
 };
 
 /// メインPanel
-class L3basicPanel: public wxPanel
+class BasicPanel: public wxPanel
 {
 private:
-	L3basicFrame *frame;
+	BasicFrame *frame;
 
 	wxBoxSizer *szrAll;
 
@@ -180,17 +196,17 @@ private:
 	wxTextCtrl *textFont;
 	wxButton *btnFont;
 
-	wxString mFontName;
-	int      mFontSize;
-	wxFont fontFixed;
+//	wxString mFontName;
+//	int      mFontSize;
+	wxFont mFontFixed;
 
 	wxArrayString mOrigBasicTypes;
 	wxArrayString mOrigCharTypes;
 
 	void SetInitialFont();
 public:
-	L3basicPanel(L3basicFrame *parent);
-	~L3basicPanel();
+	BasicPanel(BasicFrame *parent);
+	~BasicPanel();
 
 	/// @name event procedures
 	//@{
@@ -221,18 +237,20 @@ public:
 
 	void SetTextInfo(const wxString &str);
 	void SetTextInfo(const wxString &char_type, const wxString &str);
-	void SetTextInfo(const wxString &char_type, const wxArrayString &lines);
+	void SetTextInfo(const MyColorTag &color_tag, const wxString &str);
+	void SetTextInfo(const wxString &char_type, const MyColorTag &color_tag, const wxArrayString &lines);
 	void SetTextFontName();
+	void RestartTextFont();
 	//@}
 	/// @name properties
 	//@{
 //	wxTextCtrl *GetTextName() { return textName; }
 	MyTextCtrl *GetTextInfo() { return textInfo; }
 
-	void SetFontName(const wxString &val) { mFontName = val; }
-	void SetFontSize(int val) { mFontSize = val; }
-	wxString &GetFontName() { return mFontName; }
-	int GetFontSize() { return mFontSize; }
+//	void SetFontName(const wxString &val) { mFontName = val; }
+//	void SetFontSize(int val) { mFontSize = val; }
+//	wxString &GetFontName() { return mFontName; }
+//	int GetFontSize() { return mFontSize; }
 	//@}
 
 	enum {
@@ -268,28 +286,28 @@ public:
 };
 
 /// ファイルダイアログ
-class L3basicFileDialog: public wxFileDialog
+class BasicFileDialog: public wxFileDialog
 {
 public:
-	L3basicFileDialog(const wxString& message, const wxString& defaultDir = wxEmptyString, const wxString& defaultFile = wxEmptyString, const wxString& wildcard = wxFileSelectorDefaultWildcardStr, long style = wxFD_DEFAULT_STYLE);
+	BasicFileDialog(const wxString& message, const wxString& defaultDir = wxEmptyString, const wxString& defaultFile = wxEmptyString, const wxString& wildcard = wxFileSelectorDefaultWildcardStr, long style = wxFD_DEFAULT_STYLE);
 
 };
 
 /// ファイル ドラッグ＆ドロップ
-class L3basicFileDropTarget : public wxFileDropTarget
+class BasicFileDropTarget : public wxFileDropTarget
 {
-    L3basicFrame *frame;
+    BasicFrame *frame;
 public:
-    L3basicFileDropTarget(L3basicFrame *parent);
+    BasicFileDropTarget(BasicFrame *parent);
     bool OnDropFiles(wxCoord x, wxCoord y ,const wxArrayString &filenames);
 };
 
 /// About dialog
-class L3basicAbout : public wxDialog
+class BasicAbout : public wxDialog
 {
 public:
-	L3basicAbout(wxWindow* parent, wxWindowID id);
+	BasicAbout(wxWindow* parent, wxWindowID id);
 };
 
-#endif /* L3S1BASIC_H */
+#endif /* MAIN_H */
 

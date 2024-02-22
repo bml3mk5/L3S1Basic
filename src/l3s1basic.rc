@@ -26,5 +26,6 @@ FILEFLAGS       0x00000000
     }
 }
 
-l3s1basic ICON "res\l3s1basic.ico"
+l3s1basic ICON "res/l3s1basic.ico"
+
 #include "wx/msw/wx.rc"

@@ -1,8 +1,8 @@
-﻿/// @file parsetape.cpp
+﻿/// @file parsetape_l3s1basic.cpp
 ///
 /// @brief テープイメージパーサー
 ///
-#include "parse.h"
+#include "parse_l3s1basic.h"
 #include <wx/textfile.h>
 #include <wx/regex.h>
 #include <wx/filename.h>
@@ -12,7 +12,7 @@
 static const wxUint8 cmt_ident[4] = { 0xff, 0x01, 0x3c, 0x00 };
 
 /// テープイメージのフォーマットチェック
-bool Parse::CheckTapeDataFormat(PsFileInput &in_data, PsFileOutput &out_data)
+bool ParseL3S1Basic::CheckTapeDataFormat(PsFileInput &in_data, PsFileOutput &out_data)
 {
 	bool st = true;
 
@@ -30,7 +30,7 @@ bool Parse::CheckTapeDataFormat(PsFileInput &in_data, PsFileOutput &out_data)
 }
 
 /// テープイメージから実ファイルを取り出す
-bool Parse::ReadTapeToRealData(PsFileInput &in_data, PsFileOutput &out_data)
+bool ParseL3S1Basic::ReadTapeToRealData(PsFileInput &in_data, PsFileOutput &out_data)
 {
 	wxString name = _("Tape->RealData");
 
@@ -173,7 +173,7 @@ bool Parse::ReadTapeToRealData(PsFileInput &in_data, PsFileOutput &out_data)
 }
 
 /// 実データをテープイメージにして出力
-bool Parse::WriteTapeFromRealData(PsFileInput &in_file, PsFileOutput &out_file)
+bool ParseL3S1Basic::WriteTapeFromRealData(PsFileInput &in_file, PsFileOutput &out_file)
 {
 	bool rc = true;
 	int hlen = 0x5a;
@@ -321,7 +321,7 @@ static const wxString chr2utf8tbl[128] = {
 /// @param[in] src 内部ファイル名
 /// @param[in] len 長さ
 /// @return 変換後の文字列
-wxString Parse::ConvInternalName(const wxUint8 *src, size_t len)
+wxString ParseL3S1Basic::ConvInternalName(const wxUint8 *src, size_t len)
 {
 	wxString dst = _T("");
 

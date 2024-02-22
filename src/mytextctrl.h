@@ -21,6 +21,7 @@
 
 class MyTextCtrlThread;
 #endif
+#include "colortag.h"
 
 ///
 /// @brief カスタム・テキストコントロール
@@ -48,6 +49,9 @@ private:
 	wxMutex *mutex;
 #endif
 	int m_subindent;
+
+	MyColorTag mColorTag;
+
 	void SetMyScrollUnit();
 
 public:
@@ -64,6 +68,8 @@ public:
 	virtual void SetLine(const wxString &value);
 	virtual void SetLines(const wxArrayString &values);
 	void SetLinesMain(const wxArrayString &values);
+
+	void SetColorTag(const MyColorTag &color);
 
 #ifdef USE_MYTEXTCTRL_THREAD
 	void ReleaseThread();

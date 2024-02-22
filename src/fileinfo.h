@@ -2,8 +2,8 @@
 ///
 /// @brief ファイル情報
 ///
-#ifndef _FILEINFO_H_
-#define _FILEINFO_H_
+#ifndef FILEINFO_H
+#define FILEINFO_H
 
 #include "common.h"
 #include <wx/wx.h>
@@ -11,50 +11,57 @@
 #include <wx/filename.h>
 #include <wx/dynarray.h>
 #include <wx/wfstream.h>
+#include "bsstring.h"
 #include "bsstream.h"
 
 /// ファイルタイプ
-#define psBinary      0x00000000
-#define psAscii       0x00000001
-#define psUTF8        0x00000002
-#define psUTF8BOM     0x00000004
-#define psExtendBasic 0x00000008
-#define psEncrypted   0x00000010
-#define psTapeImage   0x00000020
-#define psDiskImage   0x00000040
+enum enFileTypes {
+	psBinary      = 0x00000000,
+	psAscii       = 0x00000001,
+	psUTF8        = 0x00000002,
+	psUTF8BOM     = 0x00000004,
+	psExtendBasic = 0x00000008,
+	psEncrypted   = 0x00000010,
+	psTapeImage   = 0x00000020,
+	psDiskImage   = 0x00000040,
+};
 
 /// ファイルタイプ情報
-class PsFileType {
+class PsFileType
+{
 protected:
 	int			flags;
 	int         machine_type;
 	wxString	basic_type;
 	wxString	char_type;
-	wxString	internal_name;
+	BinString	internal_name;
 public:
 	PsFileType();
 	PsFileType(const PsFileType &new_type);
-	virtual PsFileType &operator=(const PsFileType &src);
+	PsFileType &operator=(const PsFileType &src);
 	virtual ~PsFileType() {}
 
 	virtual void SetType(const PsFileType &val);
 	virtual PsFileType &GetType();
+	virtual const PsFileType &GetType() const;
 
 	virtual void SetTypeFlag(int flag_type, bool val);
 	virtual bool GetTypeFlag(int flag_type);
 	virtual void SetMachineType(int val);
 	virtual int  GetMachineType() { return machine_type; }
-	virtual void SetBasicType(const wxString &val);
+	virtual void SetBasicType(const wxString &val, bool extended);
 	virtual wxString &GetBasicType() { return basic_type; }
+	virtual void SetMachineAndBasicType(int machine_type, const wxString &basic_type, bool extended);
 	virtual void SetCharType(const wxString &val);
 	virtual wxString &GetCharType() { return char_type; }
-	virtual void SetInternalName(const wxString &val);
+	virtual void SetInternalName(const BinString &val);
 	virtual void SetInternalName(const wxUint8 *val, size_t size);
-	virtual wxString &GetInternalName() { return internal_name; }
+	virtual BinString &GetInternalName() { return internal_name; }
 };
 
 /// ファイル情報
-class PsFileInfo {
+class PsFileInfo
+{
 protected:
 	wxFile		file;
 	wxFileName	file_name;
@@ -70,13 +77,15 @@ public:
 	virtual wxFile &GetFile();
 
 	virtual void Assign(const wxString &fullpath, wxPathFormat format=wxPATH_NATIVE);
+	virtual wxString GetFileFullPath() const;
 	virtual wxString GetFileName() const;
 
 	virtual bool IsSameFile(const wxFileName &dst) const;
 };
 
 /// ファイルタイプ＋バッファ
-class PsFileData : public PsFileType {
+class PsFileData : public PsFileType
+{
 private:
 	wxArrayString datas;
 public:
@@ -88,6 +97,8 @@ public:
 	wxArrayString &GetData();
 
 	size_t Add(const wxString &str, size_t copies=1);
+	size_t Add(const char *str, size_t len);
+	size_t Add(const wxUint8 *str, size_t len);
 	void Empty();
 	size_t GetCount() const;
 	wxString &operator[](size_t nIndex);
@@ -95,7 +106,8 @@ public:
 
 class PsFileOutput;
 /// ファイルタイプ＋入力ストリーム抽象クラス
-class PsFileInput : public PsFileType, public wxInputStream {
+class PsFileInput : public PsFileType, public wxInputStream
+{
 protected:
 	size_t start_pos;
 
@@ -120,7 +132,8 @@ protected:
 };
 
 /// ファイルタイプ＋出力ストリーム抽象クラス
-class PsFileOutput : public PsFileType, public wxOutputStream {
+class PsFileOutput : public PsFileType, public wxOutputStream
+{
 public:
 	PsFileOutput();
 	PsFileOutput(const PsFileOutput &src);
@@ -140,7 +153,8 @@ public:
 
 class PsFileStrOutput;
 /// ファイルタイプ＋入力文字列ストリーム
-class PsFileStrInput : public PsFileInput, public BinStringInputStream {
+class PsFileStrInput : public PsFileInput, public BinStringInputStream
+{
 public:
 	PsFileStrInput();
 	PsFileStrInput(const wxString &src);
@@ -166,7 +180,8 @@ protected:
 };
 
 /// ファイルタイプ＋出力文字列ストリーム
-class PsFileStrOutput : public PsFileOutput, public BinStringOutputStream {
+class PsFileStrOutput : public PsFileOutput, public BinStringOutputStream
+{
 public:
 	PsFileStrOutput();
 	PsFileStrOutput(const PsFileStrOutput &src);
@@ -185,7 +200,8 @@ public:
 };
 
 /// ファイルタイプ＋入力ファイルストリーム
-class PsFileFsInput : public PsFileInput, public wxFileInputStream {
+class PsFileFsInput : public PsFileInput, public wxFileInputStream
+{
 public:
 	PsFileFsInput(wxFile &src);
 	PsFileFsInput(PsFileInfo &src);
@@ -212,7 +228,8 @@ private:
 };
 
 /// ファイルタイプ＋出力ファイルストリーム
-class PsFileFsOutput : public PsFileOutput, public wxFileOutputStream {
+class PsFileFsOutput : public PsFileOutput, public wxFileOutputStream
+{
 public:
 	PsFileFsOutput();
 	PsFileFsOutput(wxFile &src);
@@ -236,7 +253,8 @@ private:
 
 
 /// 入力ファイル情報
-class PsFileInputInfo : public PsFileInfo, public PsFileStrInput {
+class PsFileInputInfo : public PsFileInfo, public PsFileStrInput
+{
 private:
 	// cannot copy
 	PsFileInputInfo(const PsFileInputInfo &) {}
@@ -244,7 +262,7 @@ public:
 	PsFileInputInfo();
 	PsFileInputInfo &operator=(const PsFileInputInfo &);
 	~PsFileInputInfo();
-	bool Exist();
+	bool Exist() const;
 	bool IsOpened() const;
 //	PsFileStrInput *GetData();
 	void SetData(PsFileStrInput &src);
@@ -252,7 +270,8 @@ public:
 };
 
 /// 出力ファイル情報
-class PsFileOutputInfo : public PsFileInfo, public PsFileType {
+class PsFileOutputInfo : public PsFileInfo, public PsFileType
+{
 private:
 	// cannot copy
 	PsFileOutputInfo(const PsFileOutputInfo &) {}
@@ -262,4 +281,4 @@ public:
 	~PsFileOutputInfo();
 };
 
-#endif /* _FILEINFO_H_ */
+#endif /* FILEINFO_H */

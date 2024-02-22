@@ -5,16 +5,20 @@
 #include "configbox.h"
 #include <wx/statline.h>
 #include <wx/colordlg.h>
+#include <wx/notebook.h>
 #include "main.h"
-#include "config.h"
+#include "basicspecs.h"
 
-// Attach Event
-BEGIN_EVENT_TABLE(ConfigBox, wxDialog)
-END_EVENT_TABLE()
 
-ConfigBox::ConfigBox(wxWindow* parent, wxWindowID id)
-	: wxDialog(parent, id, _("File Settings"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE)
+ConfigParamCtrl::ConfigParamCtrl()
+	: wxPanel()
 	, ParseParam()
+{
+}
+
+ConfigParamCtrl::ConfigParamCtrl(wxWindow* parent, wxWindowID id, ConfigParam &cp, Parse &ps)
+	: wxPanel(parent, id)
+	, ParseParam(cp.GetParam())
 {
 	wxSizerFlags flags = wxSizerFlags().Expand().Border(wxALL, 4);
 
@@ -74,12 +78,95 @@ ConfigBox::ConfigBox(wxWindow* parent, wxWindowID id)
 	chkBom = new wxCheckBox(this, IDC_CHK_BOM, _("Include BOM"));
 	gszr->Add(chkBom, flags);
 
-	gszr->Add(new wxStaticText(this, wxID_ANY, _("Start Address (L3 only)")), flags);
-	comStartAddr = new wxComboBox(this, IDC_COMBO_STARTADDR, _T(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_DROPDOWN | wxCB_READONLY);
+	lblStartAddr = new wxStaticText(this, wxID_ANY, wxEmptyString);
+	gszr->Add(lblStartAddr, flags);
+	comStartAddr = new wxComboBox(this, IDC_COMBO_STARTADDR, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_DROPDOWN | wxCB_READONLY);
 	gszr->Add(comStartAddr, flags);
 	vboxNL->Add(gszr, flags);
 
+	AddStartAddrItems(ps.GetStartAddrTitle(), ps.GetStartAddrsPtr(), ps.GetStartAddrCount());
+
 	szrAll->Add(vboxNL, flags);
+
+	SetSizerAndFit(szrAll);
+}
+
+void ConfigParamCtrl::Initialize()
+{
+	chkEofTextRead->SetValue(mEofTextRead);
+	chkEofBinary->SetValue(mEofBinary);
+	if (CR <= mNewLineAscii && mNewLineAscii <= CRLF) {
+		radNewLineAscii[mNewLineAscii]->SetValue(true);
+	}
+	chkEofAscii->SetValue(mEofAscii);
+	if (CR <= mNewLineUtf8 && mNewLineUtf8 <= CRLF) {
+		radNewLineUtf8[mNewLineUtf8]->SetValue(true);
+	}
+	chkBom->SetValue(mIncludeBOM);
+	comStartAddr->Select(mStartAddr);
+}
+
+void ConfigParamCtrl::Terminate()
+{
+	mEofTextRead = chkEofTextRead->GetValue();
+	mEofBinary = chkEofBinary->GetValue();
+	for(int i=CR; i<=CRLF; i++) {
+		if (radNewLineAscii[i]->GetValue()) {
+			mNewLineAscii = i;
+			break;
+		}
+	}
+	mEofAscii = chkEofAscii->GetValue();
+	for(int i=CR; i<=CRLF; i++) {
+		if (radNewLineUtf8[i]->GetValue()) {
+			mNewLineUtf8 = i;
+			break;
+		}
+	}
+	mIncludeBOM = chkBom->GetValue();
+	mStartAddr = comStartAddr->GetSelection();
+}
+
+void ConfigParamCtrl::AddStartAddrItems(const wxString &title, const int *items, size_t count)
+{
+	wxString str;
+
+	lblStartAddr->SetLabelText(title);
+
+	if (count == 0) return;
+
+	comStartAddr->Clear();
+	for(size_t i=0; i<count; i++) {
+		str.Printf(_T("&H%04X"), items[i]);
+		comStartAddr->Insert(str, (int)i);
+	}
+	if ((size_t)mStartAddr < count) {
+		comStartAddr->Select(mStartAddr);
+	} else {
+		comStartAddr->Select(0);
+	}
+}
+
+
+// Attach Event
+BEGIN_EVENT_TABLE(ConfigBox, wxDialog)
+END_EVENT_TABLE()
+
+ConfigBox::ConfigBox(wxWindow* parent, wxWindowID id, ParseCollection &coll)
+	: wxDialog(parent, id, _("File Settings"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE)
+{
+	wxSizerFlags flags = wxSizerFlags().Expand().Border(wxALL, 4);
+
+	wxBoxSizer *szrAll = new wxBoxSizer(wxVERTICAL);
+
+	book = new wxNotebook(this, wxID_ANY);
+	szrAll->Add(book, flags);
+
+	ctrlParam[0] = new ConfigParamCtrl(book, IDC_CTRL_L3S1, gConfig.GetParam(eL3S1Basic), *coll.Get(eL3S1Basic));
+	book->AddPage(ctrlParam[0], _("L3/S1 BASIC"));
+
+	ctrlParam[1] = new ConfigParamCtrl(book, IDC_CTRL_MSX, gConfig.GetParam(eMSXBasic), *coll.Get(eMSXBasic));
+	book->AddPage(ctrlParam[1], _("MSX BASIC"));
 
 	// OK and Cancel Buttons
 
@@ -99,56 +186,41 @@ int ConfigBox::ShowModal()
 	return rc;
 }
 
-void ConfigBox::AddStartAddrItems(const int *items, size_t count)
-{
-	wxString str;
-
-	if (count == 0) return;
-
-	comStartAddr->Clear();
-	for(size_t i=0; i<count; i++) {
-		str.Printf(_T("&H%04X"), items[i]);
-		comStartAddr->Insert(str, (int)i);
-	}
-	if ((size_t)mStartAddr < count) {
-		comStartAddr->Select(mStartAddr);
-	} else {
-		comStartAddr->Select(0);
-	}
-}
+//void ConfigBox::AddStartAddrItems(int index, const wxString &title, const int *items, size_t count)
+//{
+//	ctrlParam[index]->AddStartAddrItems(title, items, count);
+//}
 
 void ConfigBox::init_dialog()
 {
-	chkEofTextRead->SetValue(mEofTextRead);
-	chkEofBinary->SetValue(mEofBinary);
-	if (0 <= mNewLineAscii && mNewLineAscii <= 2) {
-		radNewLineAscii[mNewLineAscii]->SetValue(true);
+	for(int i= 0; i<eMachineCount; i++) {
+		ctrlParam[i]->Initialize();
 	}
-	chkEofAscii->SetValue(mEofAscii);
-	if (0 <= mNewLineUtf8 && mNewLineUtf8 <= 2) {
-		radNewLineUtf8[mNewLineUtf8]->SetValue(true);
-	}
-	chkBom->SetValue(mIncludeBOM);
-	comStartAddr->Select(mStartAddr);
+	// select the tab
+	book->SetSelection(gConfig.GetCurrentMachine());
 }
 
 void ConfigBox::term_dialog()
 {
-	mEofTextRead = chkEofTextRead->GetValue();
-	mEofBinary = chkEofBinary->GetValue();
-	for(int i=0; i<3; i++) {
-		if (radNewLineAscii[i]->GetValue()) {
-			mNewLineAscii = i;
-			break;
-		}
+	for(int i= 0; i<eMachineCount; i++) {
+		ctrlParam[i]->Terminate();
 	}
-	mEofAscii = chkEofAscii->GetValue();
-	for(int i=0; i<3; i++) {
-		if (radNewLineUtf8[i]->GetValue()) {
-			mNewLineUtf8 = i;
-			break;
-		}
+}
+
+//ParseParam &ConfigBox::GetParam(int index)
+//{
+//	return ctrlParam[index]->GetParam();
+//}
+
+//void ConfigBox::SetParam(int index, const ParseParam &param)
+//{
+//	ctrlParam[index]->SetParam(param);
+//}
+
+void ConfigBox::GetParams(ParseCollection &coll) const
+{
+	for(int i= 0; i<eMachineCount; i++) {
+		gConfig.GetParam(i).SetParam(ctrlParam[i]->GetParam());
+//		coll.Get(i)->SetParam(ctrlParam[i]->GetParam());
 	}
-	mIncludeBOM = chkBom->GetValue();
-	mStartAddr = comStartAddr->GetSelection();
 }

@@ -1,4 +1,4 @@
-/// @file bsstream.cpp
+﻿/// @file bsstream.cpp
 ///
 /// @brief 8bit string stream
 ///

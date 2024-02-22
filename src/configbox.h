@@ -7,11 +7,16 @@
 
 #include "common.h"
 #include <wx/wx.h>
+#include <wx/panel.h>
 #include <wx/dialog.h>
 #include "parseparam.h"
+#include "parse.h"
+#include "config.h"
 
-/// 入出力設定ダイアログ
-class ConfigBox : public wxDialog, public ParseParam
+class wxNotebook;
+
+/// 入出力設定サブコントロール
+class ConfigParamCtrl : public wxPanel, public ParseParam
 {
 private:
 	wxCheckBox    *chkEofTextRead;
@@ -20,13 +25,12 @@ private:
 	wxCheckBox    *chkEofAscii;
 	wxRadioButton *radNewLineUtf8[3];
 	wxCheckBox    *chkBom;
+	wxStaticText  *lblStartAddr;
 	wxComboBox    *comStartAddr;
 
-	void init_dialog();
-	void term_dialog();
-
 public:
-	ConfigBox(wxWindow* parent, wxWindowID id);
+	ConfigParamCtrl();
+	ConfigParamCtrl(wxWindow* parent, wxWindowID id, ConfigParam &cp, Parse &ps);
 
 	enum {
 		IDC_CHK_TEXTREAD_EOF = 1,
@@ -44,8 +48,37 @@ public:
 
 	/// functions
 	//@{
+	void Initialize();
+	void Terminate();
+	void AddStartAddrItems(const wxString &title, const int *items, size_t count);
+	//@}
+};
+
+/// 入出力設定ダイアログ
+class ConfigBox : public wxDialog
+{
+private:
+	wxNotebook *book;
+	ConfigParamCtrl *ctrlParam[eMachineCount];
+
+	void init_dialog();
+	void term_dialog();
+
+public:
+	ConfigBox(wxWindow* parent, wxWindowID id, ParseCollection &coll);
+
+	enum {
+		IDC_CTRL_L3S1 = 21,
+		IDC_CTRL_MSX,
+	};
+
+	/// functions
+	//@{
 	int ShowModal();
-	void AddStartAddrItems(const int *items, size_t count);
+//	void AddStartAddrItems(int index, const wxString &title, const int *items, size_t count);
+//	ParseParam &GetParam(int index);
+//	void SetParam(int index, const ParseParam &param);
+	void GetParams(ParseCollection &coll) const;
 	//@}
 
 	/// event procedures

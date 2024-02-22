@@ -48,6 +48,8 @@ public:
 	UINT192 &operator-=(const UINT192 &src);
 
 	UINT192 &And(const UINT192 &src);
+	UINT192 &Or(const UINT192 &src);
+	UINT192 &Not();
 
 	UINT192 &Shift(int size);
 	UINT192 &LShift(unsigned int size);
@@ -70,6 +72,8 @@ public:
 	unsigned int Digits() const;
 
 	void RoundBit(unsigned int digit);
+	void RoundDownBit(unsigned int digit);
+	void RoundUpBit(unsigned int digit);
 };
 
 

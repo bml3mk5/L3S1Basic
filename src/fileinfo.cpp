@@ -3,7 +3,6 @@
 /// @brief ファイル情報
 ///
 #include "fileinfo.h"
-#include "l3specs.h"
 
 //
 //
@@ -33,6 +32,9 @@ void PsFileType::SetType(const PsFileType &val) {
 PsFileType &PsFileType::GetType() {
 	return *this;
 }
+const PsFileType &PsFileType::GetType() const {
+	return *this;
+}
 void PsFileType::SetTypeFlag(int flag_type, bool val) {
 	if (val) flags |= flag_type;
 	else flags &= ~flag_type;
@@ -43,19 +45,23 @@ bool PsFileType::GetTypeFlag(int flag_type) {
 void PsFileType::SetMachineType(int val) {
 	machine_type = val;
 }
-void PsFileType::SetBasicType(const wxString &val) {
+void PsFileType::SetBasicType(const wxString &val, bool extended) {
 	basic_type = val;
-	SetTypeFlag(psExtendBasic, IS_EXTENDED_BASIC(basic_type));
-	SET_MACHINE_TYPE(basic_type, machine_type);
+	SetTypeFlag(psExtendBasic, extended);
+//	SetMachineType(basic_type, machine_type);
+}
+void PsFileType::SetMachineAndBasicType(int n_machine_type, const wxString &n_basic_type, bool n_extended) {
+	SetMachineType(n_machine_type);
+	SetBasicType(n_basic_type, n_extended);
 }
 void PsFileType::SetCharType(const wxString &val) {
 	char_type = val;
 }
-void PsFileType::SetInternalName(const wxString &val) {
+void PsFileType::SetInternalName(const BinString &val) {
 	internal_name = val.Left(8);
 }
 void PsFileType::SetInternalName(const wxUint8 *val, size_t size) {
-	internal_name = wxString::From8BitData((const char *)val, size);
+	internal_name.Set(val, size);
 }
 
 //
@@ -91,6 +97,9 @@ wxFile &PsFileInfo::GetFile() {
 void PsFileInfo::Assign(const wxString &fullpath, wxPathFormat format) {
 	file_name.Assign(fullpath, format);
 }
+wxString PsFileInfo::GetFileFullPath() const {
+	return file_name.GetFullPath();
+}
 wxString PsFileInfo::GetFileName() const {
 	return file_name.GetName();
 }
@@ -116,6 +125,12 @@ wxArrayString &PsFileData::GetData() {
 }
 size_t PsFileData::Add(const wxString &str, size_t copies) {
 	return datas.Add(str, copies);
+}
+size_t PsFileData::Add(const char *str, size_t len) {
+	return datas.Add(BinString(str, len));
+}
+size_t PsFileData::Add(const wxUint8 *str, size_t len) {
+	return datas.Add(BinString(str, len));
 }
 void PsFileData::Empty() {
 	datas.Empty();
@@ -415,7 +430,7 @@ PsFileInputInfo &PsFileInputInfo::operator=(const PsFileInputInfo &src) {
 }
 PsFileInputInfo::~PsFileInputInfo() {
 }
-bool PsFileInputInfo::Exist() {
+bool PsFileInputInfo::Exist() const {
 	return (GetLength() > 0);
 }
 bool PsFileInputInfo::IsOpened() const {

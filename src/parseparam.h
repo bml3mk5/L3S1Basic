@@ -2,8 +2,16 @@
 ///
 /// @brief パーサー用パラメータ
 ///
-#ifndef _PARSEPARAM_H_
-#define _PARSEPARAM_H_
+#ifndef PARSEPARAM_H
+#define PARSEPARAM_H
+
+#include "basicspecs.h"
+
+enum enNewLineType {
+	CR = 0,
+	LF = 1,
+	CRLF = 2
+};
 
 /// パーサー用共通パラメータ
 class ParseParam
@@ -16,16 +24,28 @@ protected:
 	int mNewLineUtf8;	///< 改行コード番号(UTF-8)
 	bool mIncludeBOM;	///< BOMコード入れるか
 	int  mStartAddr;	///< スタートアドレス番号
+//	int  mStartAddrCount;	///< スタートアドレスの数
 
 public:
 	ParseParam() {
 		mEofTextRead = false;
 		mEofBinary = false;
 		mEofAscii = false;
-		mNewLineAscii = 0;
-		mNewLineUtf8 = 1;
+		mNewLineAscii = CR; //eDefaultNewLineAscii;
+		mNewLineUtf8 = LF;
 		mIncludeBOM = false;
-		mStartAddr = 2;
+		mStartAddr = 0; //eDefaultStartAddr;
+//		mStartAddrCount = 0;
+	}
+	ParseParam(int newLineAscii, int startAddr) {
+		mEofTextRead = false;
+		mEofBinary = false;
+		mEofAscii = false;
+		mNewLineAscii = newLineAscii;
+		mNewLineUtf8 = LF;
+		mIncludeBOM = false;
+		mStartAddr = startAddr;
+//		mStartAddrCount = startAddrCount;
 	}
 	virtual ~ParseParam() {}
 
@@ -37,6 +57,7 @@ public:
 		mNewLineUtf8 = src.mNewLineUtf8;
 		mIncludeBOM = src.mIncludeBOM;
 		mStartAddr = src.mStartAddr;
+//		mStartAddrCount = src.mStartAddrCount;
 	}
 	virtual void SetEofTextRead(bool val) { mEofTextRead = val; }
 	virtual void SetEofBinary(bool val) { mEofBinary = val; }
@@ -45,6 +66,7 @@ public:
 	virtual void SetNewLineUtf8(int val) { mNewLineUtf8 = val; }
 	virtual void SetIncludeBOM(bool val) { mIncludeBOM = val; }
 	virtual void SetStartAddr(int val) { mStartAddr = val; }
+//	virtual void SetStartAddrCount(int val) { mStartAddrCount = val; }
 
 	virtual ParseParam &GetParam() { return *this; }
 	virtual bool GetEofTextRead() const { return mEofTextRead; }
@@ -54,6 +76,7 @@ public:
 	virtual int GetNewLineUtf8() const { return mNewLineUtf8; }
 	virtual bool GetIncludeBOM() const { return mIncludeBOM; }
 	virtual int GetStartAddr() const { return mStartAddr; }
+//	virtual int GetStartAddrCount() const { return mStartAddrCount; }
 };
 
 #endif /* _PARSEPARAM_H_ */

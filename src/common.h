@@ -5,7 +5,7 @@
 #define _COMMON_H_
 
 #include <wx/platform.h>
-#include "version.h"
+//#include "version.h"
 
 #ifndef _MAX_PATH
 #define _MAX_PATH	260

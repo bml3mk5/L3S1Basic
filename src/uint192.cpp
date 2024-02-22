@@ -152,10 +152,29 @@ UINT192 &UINT192::operator-=(const UINT192 &src)
 	return Sub(src);
 }
 
+/// AND
 UINT192 &UINT192::And(const UINT192 &src)
 {
 	for(int i=0; i<UINT192_MAX_INT64; i++) {
 		value.u.d[i] &= src.value.u.d[i];
+	}
+	return *this;
+}
+
+/// OR
+UINT192 &UINT192::Or(const UINT192 &src)
+{
+	for(int i=0; i<UINT192_MAX_INT64; i++) {
+		value.u.d[i] |= src.value.u.d[i];
+	}
+	return *this;
+}
+
+/// NOT
+UINT192 &UINT192::Not()
+{
+	for(int i=0; i<UINT192_MAX_INT64; i++) {
+		value.u.d[i] = ~value.u.d[i];
 	}
 	return *this;
 }
@@ -341,10 +360,35 @@ unsigned int UINT192::Digits() const
 /// 特定の位置を四捨五入
 void UINT192::RoundBit(unsigned int digit)
 {
-	UINT192 c(1);
-	c.LShift(digit);
+	UINT192 m(1), c;
+	m.LShift(digit);
+	c = m;
 	c.And(*this);
 	if (!(c == 0)) {
 		this->Add(c);
 	}
+	m.Sub(1);
+	m.Not();
+	this->And(m);
+}
+
+/// 特定の位置を切り捨て
+void UINT192::RoundDownBit(unsigned int digit)
+{
+	UINT192 m(1);
+	m.LShift(digit);
+	m.Sub(1);
+	m.Not();
+	this->And(m);
+}
+
+/// 特定の位置を切り上げ
+void UINT192::RoundUpBit(unsigned int digit)
+{
+	UINT192 m(1);
+	m.LShift(digit);
+	this->Add(m);
+	m.Sub(1);
+	m.Not();
+	this->And(m);
 }
