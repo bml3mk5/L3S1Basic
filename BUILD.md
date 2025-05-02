@@ -1,7 +1,7 @@
 
 # LEVEL3/S1 BASIC File Converter
 
-#### Copyright(C) Sasaji 2013-2024 All Rights Reserved.
+#### Copyright(C) Sasaji 2013-2025 All Rights Reserved.
 
 ------------------------------------------------------------------------------
 
@@ -253,12 +253,6 @@
 * This is the free software. I have not abandoned the copyright.
   And the author which created each source code also have the copyright.
 * No warranty: We are not responsible for any damage caused by this software.
-
-------------------------------------------------------------------------------
-
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-  http://s-sasaji.ddo.jp/bml3mk5/
-  (Twitter: http://twitter.com/bml3mk5)
 
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
@@ -537,10 +531,10 @@
 
 ------------------------------------------------------------------------------
 
-連絡先：
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-  http://s-sasaji.ddo.jp/bml3mk5/
-  (Twitter: http://twitter.com/bml3mk5)
+ MailTo: Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/L3S1Basic
+ * X(Twitter): https://x.com/bml3mk5
 
 ------------------------------------------------------------------------------
 

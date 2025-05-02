@@ -1,12 +1,14 @@
 # ![icon](l3s1basic_icon.png) LEVEL3/S1 BASIC File Converter
 
-#### Copyright(C) Sasaji 2013-2024 All Rights Reserved.
+#### Copyright(C) Sasaji 2013-2025 All Rights Reserved.
 
 ------------------------------------------------------------------------------
 
 ### このソフトは、BASICの中間言語形式やアスキー形式からテキストファイルへ、またその逆へ変換するツールです。
 * 日立ベーシックマスターレベル3のLEVEL3 BASIC と 日立MB-S1のS1 BASIC 用です。
 * MSX BASICにも暫定対応しました。
+
+![screenshot](l3s1basic_scr.png)
 
 ### [ダウンロード](https://github.com/bml3mk5/L3S1Basic/releases)
 
@@ -30,10 +32,9 @@
 
 ------------------------------------------------------------------------------
 
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-
-  http://s-sasaji.ddo.jp/bml3mk5/
-
-  (X(Twitter): http://twitter.com/bml3mk5)
+ MailTo: Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/L3S1Basic
+ * X(Twitter): https://x.com/bml3mk5
 
 ------------------------------------------------------------------------------

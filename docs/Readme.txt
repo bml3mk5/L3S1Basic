@@ -1,9 +1,9 @@
 ==============================================================================
     LEVEL3/S1 BASIC 変換ツール
-                                                              Version 0.8.0
-                                                                2024/02/23
+                                                              Version 0.8.1
+                                                                2025/05/03
 
-                           Copyright(C) Sasaji 2013-2024 All Rights Reserved.
+                           Copyright(C) Sasaji 2013-2025 All Rights Reserved.
 ==============================================================================
 
 ● はじめに
@@ -356,10 +356,10 @@
 
 ==============================================================================
 
-連絡先：
-  Sasaji (sasaji@s-sasaji.ddo.jp)
-  http://s-sasaji.ddo.jp/bml3mk5/
-  (X(Twitter): http://twitter.com/bml3mk5)
+連絡先：Sasaji (sasaji@s-sasaji.ddo.jp)
+ * My WebPage: http://s-sasaji.ddo.jp/bml3mk5/
+ * GitHub:     https://github.com/bml3mk5/L3S1Basic
+ * X(Twitter): https://x.com/bml3mk5
 
 ==============================================================================
 

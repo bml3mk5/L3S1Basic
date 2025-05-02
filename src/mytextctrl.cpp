@@ -86,8 +86,11 @@ void MyTextCtrl::SetMyScrollUnit()
 #ifdef USE_RICHTEXTCTRL
 	int ux, uy;
 	int vx, vy;
+	int px, py;
 	GetScrollPixelsPerUnit(&ux, &uy);
 	GetVirtualSize(&vx, &vy);
+	px = GetScrollPos(wxHORIZONTAL);
+	py = GetScrollPos(wxVERTICAL);
 
 	int nuy = GetFont().GetPixelSize().GetHeight();
 	nuy += GetMargins().y;
@@ -101,8 +104,13 @@ void MyTextCtrl::SetMyScrollUnit()
 	if (ux > 0) nx = vx / ux;
 	int ny = 0;
 	if (uy > 0) ny = vy / uy;
+#ifdef __WXMSW__
+	int tx, ty;
+	GetTargetSize(&tx, &ty);
+	if (ty < vy && vy <= ty + uy) ny++;
+#endif
 
-	SetScrollbars(ux, uy, nx, ny);
+	SetScrollbars(ux, uy, nx, ny, px, py);
 #endif
 }
 
