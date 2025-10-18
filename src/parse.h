@@ -1,6 +1,8 @@
 ﻿/// @file parse.h
 ///
-/// @brief パーサー
+/// @brief パーサー基本クラス
+///
+/// @author Copyright (c) Sasaji. All rights reserved.
 ///
 #ifndef _PARSE_H_
 #define _PARSE_H_

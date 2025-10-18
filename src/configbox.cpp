@@ -2,6 +2,8 @@
 ///
 /// @brief 入出力設定ダイアログ
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "configbox.h"
 #include <wx/statline.h>
 #include <wx/colordlg.h>

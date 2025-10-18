@@ -1,6 +1,8 @@
 ﻿/// @file parse.cpp
 ///
-/// @brief パーサー
+/// @brief パーサー基本クラス
+///
+/// @author Copyright (c) Sasaji. All rights reserved.
 ///
 #include "parse.h"
 #include <wx/textfile.h>

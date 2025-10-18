@@ -2,6 +2,8 @@
 ///
 /// @brief ファイル情報
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "fileinfo.h"
 
 //

@@ -4,7 +4,8 @@
 ///
 /// @note based on wxString
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "bsstring.h"
 
 BinString::BinString()

@@ -2,6 +2,8 @@
 ///
 /// @brief L3/S1 BASICパーサー
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "parse_l3s1basic.h"
 #include <wx/textfile.h>
 #include <wx/regex.h>
@@ -181,7 +183,7 @@ int ParseL3S1Basic::ReadBinaryToSymbolsOneLine(PsFileInput &in_file, PsFileType 
 	long vall;
 	wxUint32 area = 0;
 	int linenumber_area = 0;
-	int charnumber_area = 0;
+//	int charnumber_area = 0;
 	int contstate_area = 0;
 	int vlen = 0;
 //	int llen = 0;
@@ -436,7 +438,7 @@ int ParseL3S1Basic::ReadBinaryToSymbolsOneLine(PsFileInput &in_file, PsFileType 
 					}
 
 					// 数値を文字列として出力するか
-					charnumber_area = ((attr & CodeMapItem::ATTR_CHARNUMBER) != 0) ? 1 : 0;
+//					charnumber_area = ((attr & CodeMapItem::ATTR_CHARNUMBER) != 0) ? 1 : 0;
 					// 続く文字列はステートメントとするか(CALL文)
 					contstate_area =  ((attr & CodeMapItem::ATTR_CONTSTATEMENT) != 0) ? 1 : 0;
 
@@ -493,7 +495,7 @@ int ParseL3S1Basic::ReadBinaryToSymbolsOneLine(PsFileInput &in_file, PsFileType 
 						// colon
 						area &= ~STATEMENT_AREA;
 						linenumber_area = 0;
-						charnumber_area = 0;
+//						charnumber_area = 0;
 						word.Append(vals[0], vals[0]);
 						in_file.Seek(1-vlen, wxFromCurrent);
 						mPos.mCol++;

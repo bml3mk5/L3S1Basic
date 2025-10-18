@@ -2,6 +2,8 @@
 ///
 /// @brief パーサー用パラメータ
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef PARSEPARAM_H
 #define PARSEPARAM_H
 

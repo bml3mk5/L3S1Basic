@@ -3,7 +3,8 @@
 /// @brief レベル3の実数内部表現形式
 ///
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "l3float.h"
 
 /// 実数からUINT192形式にする

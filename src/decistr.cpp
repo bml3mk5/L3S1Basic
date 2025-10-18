@@ -2,8 +2,9 @@
 
  @brief 10進文字列
 
-*/
+ @author Copyright (c) Sasaji. All rights reserved.
 
+*/
 #include "decistr.h"
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
 #pragma warning( disable : 4819 )
@@ -103,10 +104,18 @@ bool DeciStr::PushInteger(int val)
 {
 	if (decipos >= DECISTR_MAX_BYTES) return false;
 	char str[32];
-	sprintf(str, "%c%02d", val >= 0 ? '+' : '-', val >= 0 ? val : -val);
+#if defined(_WIN32)
+	_snprintf(str, sizeof(str), "%c%02d", val >= 0 ? '+' : '-', val >= 0 ? val : -val);
+#else
+	snprintf(str, sizeof(str), "%c%02d", val >= 0 ? '+' : '-', val >= 0 ? val : -val);
+#endif
 	int len = (int)strlen(str);
 	if (decipos+len >= DECISTR_MAX_BYTES) return false;
+#if defined(_WIN32)
+	strncat_s(&decistr[decipos], sizeof(decistr) - decipos, str, len);
+#else
 	strncat(&decistr[decipos], str, len);
+#endif
 	decipos += len;
 	return true;
 }

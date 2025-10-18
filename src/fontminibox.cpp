@@ -2,7 +2,8 @@
 ///
 /// @brief フォントミニダイアログ
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "fontminibox.h"
 #include <wx/combobox.h>
 #include <wx/button.h>

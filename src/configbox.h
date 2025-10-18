@@ -2,6 +2,8 @@
 ///
 /// @brief 入出力設定ダイアログ
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef CONFIGBOX_H
 #define CONFIGBOX_H
 

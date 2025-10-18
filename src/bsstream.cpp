@@ -4,7 +4,8 @@
 ///
 /// @note based on wxStringInputStream / wxStringOutputStream
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "bsstream.h"
 
 // ============================================================================
@@ -68,8 +69,9 @@ wxFileOffset BinStringInputStream::OnSysSeek(wxFileOffset ofs, wxSeekMode mode)
             return wxInvalidOffset;
     }
 
-    if ( ofs < 0 || ofs > static_cast<wxFileOffset>(m_len) )
+    if (ofs < 0 || ofs > static_cast<wxFileOffset>(m_len)) {
         return wxInvalidOffset;
+    }
 
 	m_pos = ofs;
 

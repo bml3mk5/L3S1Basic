@@ -2,6 +2,8 @@
 ///
 /// @brief 解析文字列格納
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef PSSYMBOL_H
 #define PSSYMBOL_H
 

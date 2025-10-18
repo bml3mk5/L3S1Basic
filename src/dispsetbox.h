@@ -2,6 +2,8 @@
 ///
 /// @brief 表示設定ダイアログ
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef DISPSETBOX_H
 #define DISPSETBOX_H
 

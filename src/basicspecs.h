@@ -2,6 +2,8 @@
 ///
 /// @brief BASICの設定
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef BASICSPECS_H
 #define BASICSPECS_H
 

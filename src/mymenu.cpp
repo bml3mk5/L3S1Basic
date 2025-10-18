@@ -2,6 +2,8 @@
 ///
 /// @brief メニューコントロール
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "mymenu.h"
 #include <wx/regex.h>
 

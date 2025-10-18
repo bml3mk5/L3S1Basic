@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: l3basic\n"
-"POT-Creation-Date: 2024-02-21 20:49+0900\n"
-"PO-Revision-Date: 2024-02-21 20:49+0900\n"
+"POT-Creation-Date: 2025-10-14 19:15+0900\n"
+"PO-Revision-Date: 2025-10-14 19:15+0900\n"
 "Last-Translator: Sasaji <s-sasaji@ddo.jp>\n"
 "Language-Team: \n"
 "Language: Japanese\n"
@@ -293,8 +293,8 @@ msgid "Bring All to Front"
 msgstr "すべてを手前に移動"
 
 #: src/main.cpp:266
-msgid "&Open...\tCTRL+O"
-msgstr "開く(&O)...\tCTRL+O"
+msgid "&Open...\tCtrl+O"
+msgstr "開く(&O)...\tCtrl+O"
 
 #: src/main.cpp:267
 msgid "&Close"
@@ -337,8 +337,8 @@ msgid "&Reccent Files"
 msgstr "最近使用したファイル(&R)"
 
 #: src/main.cpp:285
-msgid "E&xit\tALT+F4"
-msgstr "終了(&X)\tALT+F4"
+msgid "E&xit\tAlt+F4"
+msgstr "終了(&X)\tAlt+F4"
 
 #: src/main.cpp:290
 msgid "&File Settings..."

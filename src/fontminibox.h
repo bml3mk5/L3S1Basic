@@ -2,7 +2,8 @@
 ///
 /// @brief フォントミニダイアログ
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _FONTMINIBOX_H_
 #define _FONTMINIBOX_H_
 

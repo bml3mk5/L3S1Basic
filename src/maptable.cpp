@@ -2,6 +2,8 @@
 ///
 /// @brief マッピングテーブル
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "maptable.h"
 #include "wx/arrimpl.cpp"
 

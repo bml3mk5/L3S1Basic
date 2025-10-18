@@ -2,6 +2,8 @@
 ///
 /// @brief 本体
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "main.h"
 #include "configbox.h"
 #include "dispsetbox.h"
@@ -263,7 +265,7 @@ BasicFrame::BasicFrame(const wxString& title, const wxSize& size)
 	MyMenu *smenu;
 
 	// file menu
-	menuFile->Append( IDM_OPEN_FILE, _("&Open...\tCTRL+O") );
+	menuFile->Append( IDM_OPEN_FILE, _("&Open...\tCtrl+O") );
 	menuFile->Append( IDM_CLOSE_FILE, _("&Close") );
 	menuFile->AppendSeparator();
 	smenu = new MyMenu;
@@ -282,7 +284,7 @@ BasicFrame::BasicFrame(const wxString& title, const wxSize& size)
 	UpdateMenuRecentFiles();
 	menuFile->AppendSubMenu(menuRecentFiles, _("&Reccent Files") );
 	menuFile->AppendSeparator();
-	menuFile->Append( wxID_EXIT, _("E&xit\tALT+F4") );
+	menuFile->Append( wxID_EXIT, _("E&xit\tAlt+F4") );
 	// machine menu
 	menuMachine->AppendRadioItem( IDM_MACHINE_L3S1, psCollection.Get(eL3S1Basic)->GetMachineName() );
 	menuMachine->AppendRadioItem( IDM_MACHINE_MSX, psCollection.Get(eMSXBasic)->GetMachineName() );
@@ -952,6 +954,7 @@ void BasicPanel::OnSize(wxSizeEvent& event)
 {
 	wxSize size = event.GetSize();
 
+	Layout();
 	if (textInfo) textInfo->SetSize(size.x, size.y - textInfo->GetPosition().y);
 }
 

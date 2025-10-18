@@ -2,6 +2,8 @@
 ///
 /// @brief メニューコントロール ラッパークラス
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef MYMENU_H
 #define MYMENU_H
 

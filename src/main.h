@@ -2,6 +2,8 @@
 ///
 /// @brief 本体
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef MAIN_H
 #define MAIN_H
 

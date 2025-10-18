@@ -2,6 +2,8 @@
 ///
 /// @brief テープイメージ設定ボックス
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "tapebox.h"
 #include "configbox.h"
 

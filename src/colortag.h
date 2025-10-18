@@ -2,7 +2,8 @@
 ///
 /// @brief テキスト色
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef MYCOLORTAG_H
 #define MYCOLORTAG_H
 

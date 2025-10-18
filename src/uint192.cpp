@@ -2,8 +2,9 @@
 
  @brief 192ビット数値
 
-*/
+ @author Copyright (c) Sasaji. All rights reserved.
 
+*/
 #include "uint192.h"
 #include <string.h>
 

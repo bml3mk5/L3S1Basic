@@ -2,7 +2,8 @@
 ///
 /// @brief 解析文字列格納
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "pssymbol.h"
 #include "wx/arrimpl.cpp"
 

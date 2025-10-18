@@ -2,6 +2,8 @@
 ///
 /// @brief テープイメージパーサー
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "parse_msxbasic.h"
 #include <wx/textfile.h>
 #include <wx/regex.h>

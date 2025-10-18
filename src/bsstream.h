@@ -4,7 +4,8 @@
 ///
 /// @note based on wxStringInputStream / wxStringOutputStream
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _BSSTREAM_H_
 #define _BSSTREAM_H_
 

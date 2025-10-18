@@ -2,8 +2,9 @@
 
  @brief 10進文字列
 
-*/
+ @author Copyright (c) Sasaji. All rights reserved.
 
+*/
 #ifndef _DECISTR_H_
 #define _DECISTR_H_
 

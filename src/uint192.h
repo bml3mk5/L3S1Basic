@@ -2,8 +2,9 @@
 
  @brief 192ビット数値
 
-*/
+ @author Copyright (c) Sasaji. All rights reserved.
 
+*/
 #include <stdio.h>
 
 #ifndef _UINT192_H_

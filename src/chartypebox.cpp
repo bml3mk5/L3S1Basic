@@ -2,7 +2,8 @@
 ///
 /// @brief 文字タイプダイアログ
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "chartypebox.h"
 
 //

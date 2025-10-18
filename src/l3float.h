@@ -3,7 +3,8 @@
 /// @brief レベル3の実数内部表現形式
 ///
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _L3FLOAT_H_
 #define _L3FLOAT_H_
 

@@ -2,6 +2,8 @@
 ///
 /// @brief L3/S1 BASICパーサー
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _PARSE_L3S1BASIC_H_
 #define _PARSE_L3S1BASIC_H_
 

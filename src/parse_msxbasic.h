@@ -2,6 +2,8 @@
 ///
 /// @brief MSX-BASICパーサー
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _PARSE_MSXBASIC_H_
 #define _PARSE_MSXBASIC_H_
 

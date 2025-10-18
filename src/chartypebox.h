@@ -2,7 +2,8 @@
 ///
 /// @brief 文字タイプダイアログ
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _CHARTYPEBOX_H_
 #define _CHARTYPEBOX_H_
 

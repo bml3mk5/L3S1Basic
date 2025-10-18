@@ -2,7 +2,8 @@
 ///
 /// @brief テキストコントロール
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "mytextctrl.h"
 #include <wx/regex.h>
 #include "colortag.h"

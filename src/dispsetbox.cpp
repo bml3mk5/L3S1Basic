@@ -2,6 +2,8 @@
 ///
 /// @brief 表示設定ダイアログ
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #include "dispsetbox.h"
 #include <wx/statline.h>
 #include <wx/notebook.h>

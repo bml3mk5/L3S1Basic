@@ -10,8 +10,6 @@
 	<string>LEVEL3/S1 BASIC File Converter version APPLICATION_VERSION, (c) 2013-2025 Sasaji</string>
 	<key>CFBundleIconFile</key>
 	<string>l3s1basic.icns</string>
-	<key>CFBundleIdentifier</key>
-	<string></string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLocalizations</key>

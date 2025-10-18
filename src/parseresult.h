@@ -2,6 +2,8 @@
 ///
 /// @brief 解析結果保存クラス
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _PARSERESULT_H_
 #define _PARSERESULT_H_
 

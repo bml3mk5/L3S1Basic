@@ -1,7 +1,7 @@
 ==============================================================================
     LEVEL3/S1 BASIC 変換ツール
-                                                              Version 0.8.1
-                                                                2025/05/03
+                                                              Version 0.8.2
+                                                                2025/10/19
 
                            Copyright(C) Sasaji 2013-2025 All Rights Reserved.
 ==============================================================================
@@ -16,8 +16,8 @@
 
 ● 動作確認環境
 
-  ◆Windows ... Windows10(Intel 32/64bit)
-  ◆MacOS ..... Ventura(13.5)(Apple Silicon) / High Sierra(10.13)(Intel 64bit)
+  ◆Windows .. Windows11(Intel 64bit) / Windows10(Intel 64bit)
+  ◆MacOS .... Sequoia(15.6.1 Apple silicon) / High Sierra(10.13.6 Intel 64bit)
 
 ● インストール
 

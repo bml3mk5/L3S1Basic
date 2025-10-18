@@ -2,6 +2,8 @@
 ///
 /// @brief マッピングテーブル
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _MAPTABLE_H_
 #define _MAPTABLE_H_
 

@@ -2,7 +2,8 @@
 ///
 /// @brief テキストコントロール
 ///
-
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef _MYTEXTCTRL_H_
 #define _MYTEXTCTRL_H_
 

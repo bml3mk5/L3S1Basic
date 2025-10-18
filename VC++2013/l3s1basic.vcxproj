@@ -143,10 +143,6 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DLLDebug|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DLLDebug|x64'">true</LinkIncremental>
-    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EmbedManifest>
-    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='DLLDebug|Win32'">true</EmbedManifest>
-    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EmbedManifest>
-    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='DLLDebug|x64'">true</EmbedManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='DLLRelease|Win32'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Configuration)\$(Platform)\</OutDir>
@@ -180,7 +176,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsStaticLibDirWin32);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
       <SubSystem>Windows</SubSystem>
@@ -189,6 +184,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLLDebug|Win32'">
     <ClCompile>
@@ -210,7 +208,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsDynamicLibDirWin32);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
       <SubSystem>Windows</SubSystem>
@@ -219,6 +216,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -240,7 +240,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsStaticLibDirX64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
       <SubSystem>Windows</SubSystem>
@@ -248,6 +247,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLLDebug|x64'">
     <ClCompile>
@@ -269,7 +271,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsDebug);comctl32.lib;RpcRT4.Lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsDynamicLibDirX64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>true</AssemblyDebug>
       <SubSystem>Windows</SubSystem>
@@ -277,6 +278,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -298,7 +302,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsStaticLibDirWin32);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -308,6 +311,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|Win32'">
     <ClCompile>
@@ -329,7 +335,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsDynamicLibDirWin32);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -339,6 +344,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -360,7 +368,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsStaticLibDirX64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -369,6 +376,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DLLRelease|x64'">
     <ClCompile>
@@ -390,7 +400,6 @@
     <Link>
       <AdditionalDependencies>$(wxWidgetsLibsRelease);comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(wxWidgetsDynamicLibDirX64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalManifestDependencies>type=%27win32%27 name=%27Microsoft.Windows.Common-Controls%27 version=%276.0.0.0%27 processorArchitecture=%27*%27 publicKeyToken=%276595b64144ccf1df%27 language=%27*%27;%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -399,6 +408,9 @@
     <PostBuildEvent>
       <Command>post_build.bat $(SolutionDir) $(Configuration)\$(Platform)</Command>
     </PostBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>$(wxWidgetsDir)include\wx\msw\wx_dpi_aware_pmv2.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\bsstream.cpp" />

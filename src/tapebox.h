@@ -2,6 +2,8 @@
 ///
 /// @brief テープイメージ設定ボックス
 ///
+/// @author Copyright (c) Sasaji. All rights reserved.
+///
 #ifndef TAPEBOX_H
 #define TAPEBOX_H
 
